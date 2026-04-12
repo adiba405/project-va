@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        .clock-container { display: flex; justify-content: center; gap: 20px; }
+        .clock { border: 1px solid #000; padding: 20px; border-radius: 10px; }
+        .time { font-size: 2em; }
+    </style>
+</head>
+<body>
+    <h1>Digital Clock</h1>
+    <div class="clock-container">
+        <div class="clock" id="utc">
+            <h2>UTC</h2>
+            <div class="time" id="utc-time"></div>
+        </div>
+        <div class="clock" id="est">
+            <h2>EST (UTC-5)</h2>
+            <div class="time" id="est-time"></div>
+        </div>
+        <div class="clock" id="pst">
+            <h2>PST (UTC-8)</h2>
+            <div class="time" id="pst-time"></div>
+        </div>
+    </div>
+    <script>
+        function updateTime() {
+            const utc = new Date(); // Current time in UTC
+            document.getElementById('utc-time').innerText = utc.toUTCString().slice(17, 25);
+
+            const est = new Date(utc.getTime() - 5 * 60 * 60 * 1000);
+            document.getElementById('est-time').innerText = est.toTimeString().slice(0, 8);
+
+            const pst = new Date(utc.getTime() - 8 * 60 * 60 * 1000);
+            document.getElementById('pst-time').innerText = pst.toTimeString().slice(0, 8);
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime(); // Initial call to display time immediately
+    </script>
+</body>
+</html>
