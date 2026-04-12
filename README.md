@@ -22,6 +22,15 @@ Full-stack study assistant platform with Flask backend, JavaScript frontend, and
 - **Database**: MongoDB
 - **Styling**: Modern CSS with gradients and transitions
 
+## Simple Architecture
+
+This project has two main parts:
+
+- **Backend**: `backend/` contains the Flask server, REST API endpoints, and MongoDB access.
+- **Frontend**: `frontend/` contains static web pages, UI logic, and calls the backend APIs.
+
+The app runs as a local Flask website and the browser pages use JWT tokens to access data.
+
 ## Prerequisites
 
 - Python 3.7+
@@ -84,12 +93,18 @@ project-va/
 │   │   ├── auth_controller.py
 │   │   ├── note_controller.py
 │   │   ├── task_controller.py
-│   │   └── ai_controller.py
+│   │   ├── ai_controller.py
+│   │   ├── file_controller.py
+│   │   ├── file_analyzer.py
+│   │   ├── share_controller.py
+│   │   └── user_controller.py
 │   ├── routes/               # API endpoints
 │   │   ├── auth_routes.py
 │   │   ├── note_routes.py
 │   │   ├── task_routes.py
-│   │   └── ai_routes.py
+│   │   ├── ai_routes.py
+│   │   ├── file_routes.py
+│   │   └── share_routes.py
 │   ├── models/               # Database models (reserved)
 │   └── utils/
 │       └── helpers.py        # Utility functions
@@ -115,21 +130,31 @@ project-va/
 - `GET /api/auth/profile` - Get user profile (requires token)
 
 ### Notes
-- `GET /api/notes` - Fetch all notes (with optional subject/topic filters)
+- `GET /api/notes?page=<n>&limit=<m>` - Fetch paginated notes (with optional subject/topic filters)
 - `POST /api/notes` - Create new note
 - `GET /api/notes/<id>` - Get specific note
 - `PUT /api/notes/<id>` - Update note
 - `DELETE /api/notes/<id>` - Delete note
+- `POST /api/notes/<id>/share` - Share note with another user
+- `DELETE /api/notes/<id>/share/<share_user_id>` - Revoke a share
+- `GET /api/notes/shared` - List notes shared with current user
+- `GET /api/notes/<id>/shares` - List users with access to a note
+
+### Files
+- `GET /api/files` - List uploaded files
+- `POST /api/files` - Upload a new file
+- `DELETE /api/files/<file_id>` - Delete a file
+- `GET /api/files/<file_id>/download` - Download a file
 
 ### Tasks
-- `GET /api/tasks` - Fetch all tasks
+- `GET /api/tasks?page=<n>&limit=<m>` - Fetch paginated tasks
 - `POST /api/tasks` - Create new task
 - `PUT /api/tasks/<id>` - Update task (title, deadline, status)
 - `DELETE /api/tasks/<id>` - Delete task
 
 ### AI Features
 - `POST /api/ai/ask` - Ask a question
-- `POST /api/ai/summarize` - Summarize text
+- `POST /api/ai/summarize` - Summarize text or a selected uploaded file
 - `POST /api/ai/quiz` - Generate quiz
 
 ## Usage Guide

@@ -18,6 +18,9 @@ project-va/
 │   │   ├── note_controller.py   # Note CRUD operations
 │   │   ├── task_controller.py   # Task management logic
 │   │   ├── ai_controller.py     # OpenAI integration logic
+│   │   ├── file_controller.py   # File upload/download logic
+│   │   ├── file_analyzer.py    # File text extraction for AI context
+│   │   ├── share_controller.py # Note sharing logic
 │   │   └── user_controller.py   # User profile & settings logic
 │   │
 │   ├── routes/                # API endpoint definitions
@@ -26,7 +29,8 @@ project-va/
 │   │   ├── note_routes.py     # /api/notes/* endpoints
 │   │   ├── task_routes.py     # /api/tasks/* endpoints
 │   │   ├── ai_routes.py       # /api/ai/* endpoints
-│   │   └── user_routes.py     # /api/user/* endpoints
+│   │   ├── file_routes.py     # /api/files/* endpoints
+│   │   └── share_routes.py    # /api/notes/* sharing endpoints
 │   │
 │   ├── models/                # Database model schemas (reserved)
 │   │   └── __init__.py       # Schema documentation
@@ -52,6 +56,15 @@ project-va/
 ├── STRUCTURE.md             # This file - project organization
 └── LICENSE                  # License file
 ```
+
+## 🧭 Simple Architecture Overview
+
+This project is split into two clear areas:
+
+- **Backend**: Flask app and API logic in `backend/`.
+- **Frontend**: Static pages, UI behavior, and API calls in `frontend/`.
+
+A browser page loads HTML and JavaScript from the frontend, then talks to the backend APIs to fetch and update notes, tasks, files, and AI content.
 
 ## 🏗️ Architecture Overview
 
@@ -88,21 +101,31 @@ HTML (Structure) → CSS (Styling) → JavaScript (Behavior)
   GET  /profile   - Get user profile
 
 /api/notes/       - Note management
-  GET  /         - List all notes
+  GET  /?page=<n>&limit=<m>  - List paginated notes
   POST /         - Create note
   GET  /<id>     - Get specific note
   PUT  /<id>     - Update note
   DELETE /<id>   - Delete note
+  POST /<id>/share  - Share note with another user
+  DELETE /<id>/share/<share_user_id> - Revoke share
+  GET  /shared    - List notes shared with current user
+  GET  /<id>/shares - List users shared with
+
+/api/files/       - Uploaded files
+  GET  /         - List uploaded files
+  POST /         - Upload a file
+  DELETE /<id>   - Delete file
+  GET  /<id>/download - Download file
 
 /api/tasks/       - Task management
-  GET  /         - List all tasks
+  GET  /?page=<n>&limit=<m>  - List paginated tasks
   POST /         - Create task
   PUT  /<id>     - Update task
   DELETE /<id>   - Delete task
 
 /api/ai/          - AI features
   POST /ask       - Answer question
-  POST /summarize - Summarize text
+  POST /summarize - Summarize text or uploaded file
   POST /quiz      - Generate quiz
 
 /api/user/        - User management

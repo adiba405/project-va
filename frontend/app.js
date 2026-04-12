@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api';
 const getToken = () => localStorage.getItem('token');
 const setToken = (v) => localStorage.setItem('token', v);
 const clearToken = () => localStorage.removeItem('token');
