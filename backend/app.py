@@ -30,21 +30,6 @@ except ImportError:
     from routes.task_routes import task_bp
     from routes.user_routes import user_bp
 
-def _ensure_indexes(app):
-    db = app.mongo.db
-    try:
-        db.users.create_index('email', unique=True, name='users_email_idx')
-        db.notes.create_index([('user_id', 1), ('updated_at', -1)], name='notes_user_updated_idx')
-        db.notes.create_index('shared_with', name='notes_shared_with_idx')
-        db.notes.create_index('subject', name='notes_subject_idx')
-        db.notes.create_index('topic', name='notes_topic_idx')
-        db.tasks.create_index([('user_id', 1), ('deadline', 1)], name='tasks_user_deadline_idx')
-        db.tasks.create_index([('user_id', 1), ('status', 1)], name='tasks_user_status_idx')
-        db.files.create_index([('user_id', 1), ('created_at', -1)], name='files_user_created_idx')
-    except Exception:
-        pass
-
-
 def create_app():
     load_dotenv(PROJECT_ROOT / '.env')
     load_dotenv(BASE_DIR / '.env')
@@ -75,8 +60,6 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix='/api/user')
     app.register_blueprint(share_bp, url_prefix='/api/notes')
     app.register_blueprint(file_bp, url_prefix='/api/files')
-
-    _ensure_indexes(app)
 
     @app.route('/')
     def index():

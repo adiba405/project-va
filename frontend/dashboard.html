@@ -9,10 +9,35 @@
 <div class="navbar"><div>AI Study Assistant</div><div><a href="profile.html">Profile</a><a href="notebook.html">Notebook</a><a href="ai_assistant.html">AI Assistant</a><a href="planner.html">Planner</a><a href="#" id="logout">Logout</a></div></div>
 <div class="container">
 <section class="page-hero">
-  <p class="hero-kicker">Study Dashboard</p>
+  <p class="hero-kicker">Classroom Dashboard</p>
   <h1>Welcome back.</h1>
-  <p class="hero-subtitle">Check your momentum, open your latest notes, and jump straight into the next thing you want to study.</p>
+  <p class="hero-subtitle">Track your lessons, notes, and assignments in one school-ready workspace.</p>
 </section>
+
+<div class="highlight-card card">
+  <p class="hero-kicker">Study Checkpoint</p>
+  <h2 id="checkpoint-heading">Ready for your next session.</h2>
+  <p class="section-intro" id="checkpoint-copy">Pick up where you left off with a focused study path, fast note access, and AI-powered review.</p>
+  <div class="badge-group">
+    <span class="pill" id="checkpoint-task">Focus Session</span>
+    <span class="pill" id="checkpoint-count">Priority Tasks</span>
+    <span class="pill" id="checkpoint-note">Quick Summary</span>
+  </div>
+  <div class="checkpoint-meta">
+    <div class="checkpoint-block">
+      <p class="checkpoint-label">Next deadline</p>
+      <p id="checkpoint-deadline">No upcoming deadline</p>
+    </div>
+    <div class="checkpoint-block">
+      <p class="checkpoint-label">Latest note</p>
+      <p id="checkpoint-note-preview">No recent notes</p>
+    </div>
+  </div>
+  <div class="action-grid" style="margin-top:1.25rem;">
+    <button class="btn" id="checkpoint-action">Open Planner</button>
+    <button class="btn btn-secondary" id="checkpoint-note-action">Open Notebook</button>
+  </div>
+</div>
 
 <div class="grid-2">
   <div class="card">
@@ -107,8 +132,61 @@ document.getElementById('logout').onclick = () => {
   window.location = 'index.html';
 };
 
+async function loadCheckpoint() {
+  const taskRes = await apiFetch('/tasks?limit=1');
+  const noteRes = await apiFetch('/notes?limit=1');
+  const statsRes = await apiFetch('/user/stats');
+
+  const checkpointTask = document.getElementById('checkpoint-task');
+  const checkpointCount = document.getElementById('checkpoint-count');
+  const checkpointNote = document.getElementById('checkpoint-note');
+  const checkpointHeading = document.getElementById('checkpoint-heading');
+  const checkpointCopy = document.getElementById('checkpoint-copy');
+  const checkpointAction = document.getElementById('checkpoint-action');
+  const checkpointNoteAction = document.getElementById('checkpoint-note-action');
+  const checkpointDeadline = document.getElementById('checkpoint-deadline');
+  const checkpointNotePreview = document.getElementById('checkpoint-note-preview');
+
+  const nextTask = taskRes.success && Array.isArray(taskRes.data?.items) && taskRes.data.items[0];
+  const latestNote = noteRes.success && Array.isArray(noteRes.data?.items) && noteRes.data.items[0];
+  const pendingTasks = statsRes.success ? statsRes.data.pending_tasks : null;
+
+  if (nextTask) {
+    checkpointTask.textContent = nextTask.title;
+    checkpointHeading.textContent = 'Next task ready';
+    checkpointCopy.textContent = `Start with your next task: ${nextTask.title}.`;
+    checkpointDeadline.textContent = nextTask.deadline ? new Date(nextTask.deadline).toLocaleDateString() : 'Deadline not set';
+    checkpointAction.textContent = 'Go to Planner';
+  } else {
+    checkpointTask.textContent = 'No upcoming task';
+    checkpointDeadline.textContent = 'No upcoming deadline';
+    checkpointAction.textContent = 'Add Task';
+  }
+
+  if (pendingTasks !== null) {
+    checkpointCount.textContent = `${pendingTasks} pending task${pendingTasks === 1 ? '' : 's'}`;
+  } else {
+    checkpointCount.textContent = 'Task summary';
+  }
+
+  if (latestNote) {
+    checkpointNote.textContent = `${latestNote.subject || 'Untitled'} • ${latestNote.topic || 'No topic'}`;
+    const notePreview = latestNote.content ? latestNote.content.trim().slice(0, 90) : 'No content yet.';
+    checkpointNotePreview.textContent = notePreview + (notePreview.length >= 90 ? '…' : '');
+    checkpointNoteAction.textContent = 'Open Latest Note';
+  } else {
+    checkpointNote.textContent = 'No recent notes';
+    checkpointNotePreview.textContent = 'Create a note to capture your study ideas.';
+    checkpointNoteAction.textContent = 'Create Note';
+  }
+
+  checkpointAction.onclick = () => window.location = 'planner.html';
+  checkpointNoteAction.onclick = () => window.location = 'notebook.html';
+}
+
 loadStats();
 loadRecentNotes();
+loadCheckpoint();
 </script>
 </body>
 </html>
