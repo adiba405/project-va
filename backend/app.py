@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_pymongo import PyMongo
@@ -16,6 +16,7 @@ if str(BASE_DIR) not in sys.path:
 try:
     from .routes.ai_routes import ai_bp
     from .routes.auth_routes import auth_bp
+    from .routes.admin_auth_routes import admin_auth_bp
     from .routes.file_routes import file_bp
     from .routes.note_routes import note_bp
     from .routes.share_routes import share_bp
@@ -24,6 +25,7 @@ try:
 except ImportError:
     from routes.ai_routes import ai_bp
     from routes.auth_routes import auth_bp
+    from routes.admin_auth_routes import admin_auth_bp
     from routes.file_routes import file_bp
     from routes.note_routes import note_bp
     from routes.share_routes import share_bp
@@ -66,9 +68,10 @@ def create_app():
     jwt = JWTManager(app)
 
     app.mongo = mongo
-    app.jwt = jwt
+    app.jw t = jwt
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(admin_auth_bp, url_prefix='/api/auth')
     app.register_blueprint(note_bp, url_prefix='/api/notes')
     app.register_blueprint(task_bp, url_prefix='/api/tasks')
     app.register_blueprint(ai_bp, url_prefix='/api/ai')
@@ -77,19 +80,25 @@ def create_app():
     app.register_blueprint(file_bp, url_prefix='/api/files')
 
     _ensure_indexes(app)
-
-    @app.route('/')
-    def index():
-        return app.send_static_file('index.html')
-
     return app
-
 
 app = create_app()
 
+@app.route('/admin')
+def admin():
+    return send_from_directory(PROJECT_ROOT / 'frontend/admin', 'admin-login.html')
+
+@app.route('/admin/<path:filename>')
+def admin_static(filename):
+    return send_from_directory(PROJECT_ROOT / 'frontend/admin', filename)
+
+@app.route('/')
+def index():
+    return send_from_directory(PROJECT_ROOT / 'frontend', 'index.html')
 
 if __name__ == '__main__':
     host = os.getenv('HOST', '0.0.0.0')
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'development') == 'development'
     app.run(host=host, port=port, debug=debug)
+

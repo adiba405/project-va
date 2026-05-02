@@ -16,14 +16,10 @@ def register_user(app):
     if app.mongo.db.users.find_one({'email': email}):
         return resp(False, 'User already exists', status=409)
 
-    user = {
-        'name': name,
-        'email': email,
-        'password': hash_password(password),
-        'created_at': datetime.utcnow()
-    }
-    user_id = app.mongo.db.users.insert_one(user).inserted_id
-    return resp(True, 'User registered', {'user_id': str(user_id)})
+from models.user import UserModel
+    user_model = UserModel(app)
+    user_id = user_model.create_user(name, email, password)
+    return resp(True, 'User registered', {'user_id': user_id})
 
 
 def login_user(app):
