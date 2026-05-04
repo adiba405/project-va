@@ -68,7 +68,7 @@ def create_app():
     jwt = JWTManager(app)
 
     app.mongo = mongo
-    app.jw t = jwt
+    app.jwt = jwt
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(admin_auth_bp, url_prefix='/api/auth')

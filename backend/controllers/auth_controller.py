@@ -2,6 +2,7 @@ from flask import request
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from datetime import datetime
 from utils.helpers import check_password, hash_password, parse_object_id, resp
+from models.user import UserModel
 
 
 def register_user(app):
@@ -16,7 +17,6 @@ def register_user(app):
     if app.mongo.db.users.find_one({'email': email}):
         return resp(False, 'User already exists', status=409)
 
-from models.user import UserModel
     user_model = UserModel(app)
     user_id = user_model.create_user(name, email, password)
     return resp(True, 'User registered', {'user_id': user_id})
