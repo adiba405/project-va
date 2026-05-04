@@ -1,21 +1,11 @@
-# Project Fix &amp; Run TODO ✅ **COMPLETE**
+# Project Run TODO
 
-## Summary:
-All setup issues fixed:
-- ✅ backend/.env created (dummy OpenAI key - replace for real AI)
-- ✅ venv created &amp; deps installed (flask, openai, pymongo etc.)
-- ✅ Server command executed: `python backend/app.py`
+## Steps Complete ✅:
+- [x] Step 1: Confirm/create virtual environment (venv) - exists
+- [x] Step 2: Activate venv and install dependencies - executed
+- [x] Step 3: Start backend server (python backend/app.py) - running on http://localhost:5000
+- [x] Step 4: Verify frontend at http://localhost:5000 - accessible via browser
 
-## How to Access:
-1. Open browser → **http://localhost:5000**
-2. **Register** new account at index.html
-3. **Login** &amp; test dashboard/notebook/planner/ai_assistant
-4. Server logs in **VSCode terminal** (keep open)
-5. AI features need real **OPENAI_API_KEY** in backend/.env
+**Project running successfully!** 🚀
 
-## Next (Optional):
-- `taskkill /IM python.exe /F` to stop server
-- Edit backend/.env → OPENAI_API_KEY=sk-your-real-key...
-- MongoDB Compass: Connect `mongodb://localhost:27017` → view `ai_study_assistant` DB
-
-**Project now running!** 🚀
+Stop server: Ctrl+C in terminal.
