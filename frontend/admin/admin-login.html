@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Admin Login | AI Study Assistant</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="admin-styles.css" />
+</head>
+<body class="admin-auth-page">
+  <div class="admin-auth-container">
+    <div class="admin-auth-card">
+      <div class="admin-logo">
+        <h1>🔧 Admin Panel</h1>
+        <p>AI Study Assistant Administration</p>
+      </div>
+      
+      <p id="login-msg" style="color: var(--primary); font-size: 0.9rem; margin-bottom: 1rem; display: none;"></p>
+      
+      <input id="admin-email" class="input-field" type="email" placeholder="Admin Email" />
+      <input id="admin-password" class="input-field" type="password" placeholder="Admin Password" />
+      
+      <button class="btn admin-login-btn" id="admin-login-btn">Login to Admin Panel</button>
+      
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <a href="../index.html" class="admin-link">← Back to User Login</a>
+      </div>
+    </div>
+  </div>
+
+<script src="../app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const loginBtn = document.getElementById('admin-login-btn');
+  
+  loginBtn.onclick = async () => {
+    const email = document.getElementById('admin-email').value.trim();
+    const password = document.getElementById('admin-password').value;
+    
+    const result = await apiFetch('/api/auth/admin-login', 'POST', { email, password });
+    
+    if (!result.success) {
+      const msg = document.getElementById('login-msg');
+      msg.textContent = result.message;
+      msg.style.display = 'block';
+      msg.style.color = '#ef5350';
+      return;
+    }
+    
+    // Store admin token and redirect to dashboard
+    setToken(result.data.token);
+    localStorage.setItem('adminUser', JSON.stringify(result.data.user));
+    window.location.href = 'admin.html';
+  };
+});
+</script>
+</body>
+</html>

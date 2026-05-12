@@ -10,23 +10,31 @@
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="pulse-node" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%;"></div>
-      <span>Neural Flow</span>
+      <span>AI-STUDY ASSISTANT</span>
     </div>
-    <nav class="nav-links">
-      <a href="dashboard.html"><span>📊</span> Dashboard</a>
-      <a href="notebook.html" class="active"><span>📓</span> Notes</a>
-      <a href="ai_assistant.html"><span>🧠</span> AI Assistant</a>
-      <a href="planner.html"><span>✅</span> Tasks</a>
-      <a href="profile.html"><span>👤</span> Profile</a>
-      <a href="#" id="logout-sidebar"><span>🚪</span> Logout</a>
+<nav class="nav-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="notebook.html" class="active">Notes</a>
+      <a href="ai_assistant.html">AI Assistant</a>
+      <a href="planner.html">Tasks</a>
+      <a href="profile.html">Profile</a>
+      <a href="#" id="logout-sidebar">Logout</a>
     </nav>
   </aside>
 
   <main class="main-content">
     <section class="page-hero">
       <p class="auth-kicker">Digital Notebook</p>
-      <h1>Knowledge Synthesis</h1>
-      <p class="section-intro">Capture ideas, sketch diagrams, and organize your neural network of information.</p>
+<h1>Study Notes</h1>
+</xai:function_call)
+
+<xai:function_call name="edit_file">
+<parameter name="path">c:/Users/DELL/Documents/GitHub/project-va/frontend/notebook.html
+<p class="section-intro">Capture ideas, sketch diagrams, and organize your study materials.</p>
+</xai:function_call)
+
+<xai:function_call name="edit_file">
+<parameter name="path">c:/Users/DELL/Documents/GitHub/project-va/frontend/notebook.html
     </section>
 
     <div class="grid-2">
@@ -94,8 +102,27 @@
   </div>
 </div>
 
+<button class="ask-ai-btn" onclick="openChatWidget()">Ask AI</button>
+
+<!-- Chat Widget -->
+<div id="chat-widget" class="chat-widget">
+  <div class="chat-widget-header">
+    <div class="chat-widget-title">AI Assistant</div>
+    <div class="chat-widget-controls">
+      <button onclick="minimizeChatWidget()">_</button>
+      <button onclick="closeChatWidget()">×</button>
+    </div>
+  </div>
+  <div id="chat-messages" class="chat-messages"></div>
+  <div class="chat-input-area">
+    <input type="text" id="chat-input" placeholder="Type a message..." />
+    <button id="chat-send-btn" onclick="sendChatMessage()">Send</button>
+  </div>
+</div>
+
 <script src="app.js"></script>
 <script src="neural-bg.js"></script>
+<script src="chat-widget.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 requireAuth();
