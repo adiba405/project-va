@@ -15,53 +15,52 @@
     </header>
 
     <main class="auth-grid">
-      <section class="auth-panel fade-in-left">
-        <span class="brand-pill">AI PLATFORM</span>
-        <h1>Login as Admin or Student</h1>
-        <p class="auth-copy">Securely access your study assistant dashboard with a premium AI experience. Choose your mode and sign in to continue.</p>
-
-        <div class="mode-switch">
-          <button id="student-mode-btn" class="mode-btn active" type="button">Student Login</button>
-          <button id="admin-mode-btn" class="mode-btn" type="button">Admin Login</button>
-        </div>
-      </section>
-
-      <section class="auth-card glass-card fade-in-right">
-        <div class="card-header">
-          <div>
-            <p class="auth-kicker">Welcome back</p>
-            <h2 id="login-card-title">Student Login</h2>
+      <section class="auth-main fade-in-right">
+        <div class="mode-toggle-wrapper">
+          <div class="mode-switch-segmented">
+            <button id="student-mode-btn" class="seg-btn active" type="button">Student</button>
+            <button id="admin-mode-btn" class="seg-btn" type="button">Admin</button>
+            <span class="seg-slider"></span>
           </div>
         </div>
 
-        <p class="card-copy" id="login-card-copy">Sign in with your student account to access notes, tasks, and AI tools.</p>
-
-        <div class="form-group">
-          <label for="email">Email</label>
-          <div class="field-with-icon">
-            <span class="field-icon">📧</span>
-            <input id="email" class="input-field" placeholder="Enter your email" type="email" aria-label="Email" required />
+        <section class="auth-card glass-card">
+          <div class="card-header">
+            <div>
+              <p class="auth-kicker">Welcome back</p>
+              <h2 id="login-card-title">Student Login</h2>
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="password">Password</label>
-          <div class="field-with-icon">
-            <span class="field-icon">🔒</span>
-            <input id="password" class="input-field" placeholder="Enter your password" type="password" aria-label="Password" required />
-            <button type="button" class="password-toggle" id="password-toggle" aria-label="Show password">Show</button>
+          <p class="card-copy" id="login-card-copy">Sign in with your student account to access notes, tasks, and AI tools.</p>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <div class="field-with-icon">
+              <span class="field-icon">📧</span>
+              <input id="email" class="input-field" placeholder="Enter your email" type="email" aria-label="Email" required />
+            </div>
           </div>
-        </div>
 
-        <div class="form-footer">
-          <a href="#" class="link-text">Forgot password?</a>
-        </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="field-with-icon">
+              <span class="field-icon">🔒</span>
+              <input id="password" class="input-field" placeholder="Enter your password" type="password" aria-label="Password" required />
+              <button type="button" class="password-toggle" id="password-toggle" aria-label="Show password">Show</button>
+            </div>
+          </div>
 
-        <button class="btn btn-primary" id="login-btn" type="button">Login</button>
+          <div class="form-footer">
+            <a href="#" class="link-text">Forgot password?</a>
+          </div>
 
-        <div id="admin-credentials" class="admin-hint" style="display:none;">
-          Admin credentials: <strong>ADMIN</strong> / <strong>123456789</strong>
-        </div>
+          <button class="btn btn-primary" id="login-btn" type="button">Login</button>
+
+          <div id="admin-credentials" class="admin-hint" style="display:none;">
+            Admin credentials: <strong>ADMIN</strong> / <strong>123456789</strong>
+          </div>
+        </section>
       </section>
     </main>
   </div>
