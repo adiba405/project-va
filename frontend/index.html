@@ -2,142 +2,166 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>AI-STUDY ASSISTANT WITH DIGITAL NOTEBOOK</title>
+<title>AI-STUDY ASSISTANT</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body class="auth-page">
-<!-- Welcome Animation Overlay -->
-<div class="welcome-overlay" id="welcome-overlay">
-  <div class="welcome-text" id="welcome-text">Welcome to AI-Study Assistant</div>
+<div class="page-shell">
+  <div class="page-bg"></div>
+  <div class="page-ui">
+    <header class="auth-navbar">
+      <div class="auth-brand">AI-STUDY ASSISTANT</div>
+      <a href="#about" class="nav-link">Help / About</a>
+    </header>
+
+    <main class="auth-grid">
+      <section class="auth-panel fade-in-left">
+        <span class="brand-pill">AI PLATFORM</span>
+        <h1>Login as Admin or Student</h1>
+        <p class="auth-copy">Securely access your study assistant dashboard with a premium AI experience. Choose your mode and sign in to continue.</p>
+
+        <div class="mode-switch">
+          <button id="student-mode-btn" class="mode-btn active" type="button">Student Login</button>
+          <button id="admin-mode-btn" class="mode-btn" type="button">Admin Login</button>
+        </div>
+      </section>
+
+      <section class="auth-card glass-card fade-in-right">
+        <div class="card-header">
+          <div>
+            <p class="auth-kicker">Welcome back</p>
+            <h2 id="login-card-title">Student Login</h2>
+          </div>
+        </div>
+
+        <p class="card-copy" id="login-card-copy">Sign in with your student account to access notes, tasks, and AI tools.</p>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <div class="field-with-icon">
+            <span class="field-icon">📧</span>
+            <input id="email" class="input-field" placeholder="Enter your email" type="email" aria-label="Email" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="field-with-icon">
+            <span class="field-icon">🔒</span>
+            <input id="password" class="input-field" placeholder="Enter your password" type="password" aria-label="Password" required />
+            <button type="button" class="password-toggle" id="password-toggle" aria-label="Show password">Show</button>
+          </div>
+        </div>
+
+        <div class="form-footer">
+          <a href="#" class="link-text">Forgot password?</a>
+        </div>
+
+        <button class="btn btn-primary" id="login-btn" type="button">Login</button>
+
+        <div id="admin-credentials" class="admin-hint" style="display:none;">
+          Admin credentials: <strong>ADMIN</strong> / <strong>123456789</strong>
+        </div>
+      </section>
+    </main>
+  </div>
 </div>
 
-<nav class="navbar">
-  <div class="logo">AI-STUDY ASSISTANT</div>
-  <a href="admin/admin-login.html" class="btn">Admin Login</a>
-</nav>
-
-<div class="auth-shell">
-  <section class="auth-hero">
-    <p class="auth-kicker">Platform access</p>
-    <h1>Login as Admin or Student</h1>
-    <p class="section-intro">Switch modes below to access the student portal or admin controls.</p>
-    <div style="margin-top: 2rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
-      <button id="student-mode-btn" class="btn btn-secondary" type="button">Student Login</button>
-      <button id="admin-mode-btn" class="btn" type="button">Admin Login</button>
-    </div>
-  </section>
-
-  <section class="auth-card">
-    <h2 id="login-card-title">Student Login</h2>
-    <p class="section-intro" id="login-card-copy">Sign in with your student account to access notes, tasks, and AI tools.</p>
-    <p id="login-msg" style="color:var(--primary); font-size: 0.8rem; margin-bottom: 1rem;"></p>
-    <input id="email" class="input-field" placeholder="Your Email" type="email" required />
-    <input id="password" class="input-field" placeholder="Your Password" type="password" required />
-    <button class="btn" id="login-btn" style="width: 100%;">Login</button>
-    <div id="admin-credentials" style="display:none; margin-top: 1rem; padding: 1rem; border-radius: var(--radius); background: rgba(34, 88, 54, 0.2); border: 1px solid rgba(30, 125, 70, 0.25); color: var(--text-muted); font-size: 0.95rem;">
-      Admin credentials: <strong>ADMIN</strong> / <strong>123456789</strong>
-    </div>
-  </section>
-</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <script src="app.js"></script>
 <script src="neural-bg.js"></script>
 <script>
-// Welcome Animation on Page Load
-document.addEventListener('DOMContentLoaded', function() {
-  const overlay = document.getElementById('welcome-overlay');
-  const text = document.getElementById('welcome-text');
-  
-  // Check if this is the first visit (not from login/redirect)
-  const hasVisited = sessionStorage.getItem('hasVisitedBefore');
-  
-  if (!hasVisited) {
-    // First visit - show the welcome animation
-    setTimeout(function() {
-      overlay.classList.add('active');
-      text.classList.add('animate-glow');
-      
-      // Hide after 3 seconds
-      setTimeout(function() {
-        overlay.classList.remove('active');
-        overlay.classList.add('hidden');
-        sessionStorage.setItem('hasVisitedBefore', 'true');
-      }, 3000);
-    }, 100);
-  } else {
-    // Already visited - don't show animation
-    overlay.style.display = 'none';
-  }
-});
-
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const passwordToggle = document.getElementById('password-toggle');
+const loginBtn = document.getElementById('login-btn');
+const adminCredentials = document.getElementById('admin-credentials');
 let currentLoginMode = 'student';
 
-const updateLoginMode = (mode) => {
+const setActiveMode = (mode) => {
   currentLoginMode = mode;
   const studentBtn = document.getElementById('student-mode-btn');
   const adminBtn = document.getElementById('admin-mode-btn');
   const title = document.getElementById('login-card-title');
   const copy = document.getElementById('login-card-copy');
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const creds = document.getElementById('admin-credentials');
+
+  studentBtn.classList.toggle('active', mode === 'student');
+  adminBtn.classList.toggle('active', mode === 'admin');
 
   if (mode === 'admin') {
-    studentBtn.classList.remove('btn');
-    studentBtn.classList.add('btn-secondary');
-    adminBtn.classList.remove('btn-secondary');
-    adminBtn.classList.add('btn');
     title.textContent = 'Admin Login';
-    copy.textContent = 'Use the admin credentials below to access platform management.';
-    emailInput.placeholder = 'Admin Username';
-    passwordInput.placeholder = 'Password';
-    creds.style.display = 'block';
+    copy.textContent = 'Use the secure admin credentials to manage the AI assistant portal.';
+    adminCredentials.style.display = 'block';
   } else {
-    studentBtn.classList.remove('btn-secondary');
-    studentBtn.classList.add('btn');
-    adminBtn.classList.remove('btn');
-    adminBtn.classList.add('btn-secondary');
     title.textContent = 'Student Login';
     copy.textContent = 'Sign in with your student account to access notes, tasks, and AI tools.';
-    emailInput.placeholder = 'Your Email';
-    passwordInput.placeholder = 'Your Password';
-    creds.style.display = 'none';
+    adminCredentials.style.display = 'none';
   }
 };
 
-updateLoginMode('student');
+const setLoading = (isLoading) => {
+  if (isLoading) {
+    loginBtn.disabled = true;
+    loginBtn.classList.add('loading');
+    loginBtn.textContent = 'Signing in...';
+  } else {
+    loginBtn.disabled = false;
+    loginBtn.classList.remove('loading');
+    loginBtn.textContent = 'Login';
+  }
+};
 
-document.getElementById('student-mode-btn').onclick = () => updateLoginMode('student');
-document.getElementById('admin-mode-btn').onclick = () => updateLoginMode('admin');
+const showToast = (message, type = 'info') => {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = `toast toast-${type}`;
+  toast.style.opacity = '1';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+  }, 3600);
+};
 
-// Login function - reusable for button click and Enter key
-const performLogin = async () => {
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const endpoint = currentLoginMode === 'admin' ? '/auth/admin-login' : '/auth/login';
+const requireModeButtons = () => {
+  document.getElementById('student-mode-btn').onclick = () => setActiveMode('student');
+  document.getElementById('admin-mode-btn').onclick = () => setActiveMode('admin');
+};
 
-  const result = await apiFetch(endpoint, 'POST', { email, password });
-  if (!result.success) {
-    document.getElementById('login-msg').textContent = result.message;
+passwordToggle.onclick = () => {
+  const isVisible = passwordInput.type === 'text';
+  passwordInput.type = isVisible ? 'password' : 'text';
+  passwordToggle.textContent = isVisible ? 'Show' : 'Hide';
+};
+
+loginBtn.onclick = async () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+
+  if (!email || !password) {
+    showToast('Please enter both email and password.', 'error');
     return;
   }
 
-  setToken(result.data.token);
-  localStorage.setItem('user', JSON.stringify(result.data.user));
-  window.location.href = currentLoginMode === 'admin' ? 'admin/admin-dashboard.html' : 'dashboard.html';
+  setLoading(true);
+  try {
+    const result = await apiFetch(currentLoginMode === 'admin' ? '/auth/admin-login' : '/auth/login', 'POST', { email, password });
+    if (!result.success) {
+      showToast(result.message || 'Unable to sign in', 'error');
+      return;
+    }
+    showToast('Signed in successfully', 'success');
+    setToken(result.data.token);
+    localStorage.setItem('user', JSON.stringify(result.data.user));
+    window.location.href = currentLoginMode === 'admin' ? 'admin/admin-dashboard.html' : 'dashboard.html';
+  } catch (err) {
+    showToast('Network error. Please try again.', 'error');
+  } finally {
+    setLoading(false);
+  }
 };
 
-// Login button click
-const loginBtn = document.getElementById('login-btn');
-loginBtn.onclick = performLogin;
-
-// Enter key support for both input fields
-document.getElementById('email').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') performLogin();
-});
-document.getElementById('password').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') performLogin();
-});
+requireModeButtons();
+setActiveMode('student');
 </script>
 </body>
 </html>
