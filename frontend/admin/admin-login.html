@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const email = document.getElementById('admin-email').value.trim();
     const password = document.getElementById('admin-password').value;
     
-    const result = await apiFetch('/api/auth/admin-login', 'POST', { email, password });
+    const result = await apiFetch('/auth/admin-login', 'POST', { email, password });
     
     if (!result.success) {
       const msg = document.getElementById('login-msg');
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Store admin token and redirect to dashboard
     setToken(result.data.token);
     localStorage.setItem('adminUser', JSON.stringify(result.data.user));
-    window.location.href = 'admin.html';
+    window.location.href = 'admin-dashboard.html';
   };
 });
 </script>

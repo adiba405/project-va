@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Admin Dashboard | AI Study Assistant</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="admin-styles.css" />
+</head>
+<body class="admin-page">
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="pulse-node" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%;"></div>
+      <span>ADMIN PANEL</span>
+    </div>
+    <nav class="nav-links sidebar-nav">
+      <a href="admin-dashboard.html" class="active">Dashboard</a>
+      <a href="#users">Users</a>
+      <a href="#content">Content</a>
+      <a href="#analytics">Analytics</a>
+      <a href="#settings">Settings</a>
+      <a href="admin-login.html" id="logout-sidebar">Logout</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <section class="page-hero admin-hero">
+      <p class="auth-kicker">Admin Control Center</p>
+      <h1>Platform overview</h1>
+      <p class="section-intro">Manage users, monitor content, and review system health for your AI Study Assistant.</p>
+    </section>
+
+    <div class="grid-3 admin-metric-grid">
+      <div class="card admin-metric-card">
+        <p class="auth-kicker">Users</p>
+        <h2 id="admin-total-users">0</h2>
+        <p class="section-intro">Total registered accounts</p>
+      </div>
+      <div class="card admin-metric-card">
+        <p class="auth-kicker">Active Today</p>
+        <h2 id="admin-active-users">0</h2>
+        <p class="section-intro">Users active in the last 24 hours</p>
+      </div>
+      <div class="card admin-metric-card">
+        <p class="auth-kicker">Notes</p>
+        <h2 id="admin-total-notes">0</h2>
+        <p class="section-intro">Knowledge nodes created</p>
+      </div>
+      <div class="card admin-metric-card">
+        <p class="auth-kicker">Tasks</p>
+        <h2 id="admin-total-tasks">0</h2>
+        <p class="section-intro">Tasks across the platform</p>
+      </div>
+      <div class="card admin-metric-card">
+        <p class="auth-kicker">Shared Notes</p>
+        <h2 id="admin-shared-notes">0</h2>
+        <p class="section-intro">Notes shared with other users</p>
+      </div>
+      <div class="card admin-metric-card">
+        <p class="auth-kicker">Blocked Accounts</p>
+        <h2 id="admin-blocked-users">0</h2>
+        <p class="section-intro">Users currently blocked</p>
+      </div>
+    </div>
+
+    <div class="card admin-section" id="users">
+      <div class="page-header">
+        <div>
+          <h3>User overview</h3>
+          <p class="section-intro">Recent signups and account status.</p>
+        </div>
+      </div>
+      <div id="admin-user-details" class="admin-section" style="display:none; margin-bottom:1rem;">
+        <div class="page-header">
+          <div>
+            <h3>User details</h3>
+            <p class="section-intro">Click "View" to inspect a user, then remove or block as needed.</p>
+          </div>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+          <div><strong>Name:</strong> <span id="detail-name">—</span></div>
+          <div><strong>Email:</strong> <span id="detail-email">—</span></div>
+          <div><strong>Role:</strong> <span id="detail-role">—</span></div>
+          <div><strong>Status:</strong> <span id="detail-status">—</span></div>
+          <div><strong>Joined:</strong> <span id="detail-joined">—</span></div>
+          <div><strong>Last active:</strong> <span id="detail-last-active">—</span></div>
+          <div><strong>AI usage:</strong> <span id="detail-usage">—</span></div>
+        </div>
+      </div>
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-user-list">
+            <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card admin-section" id="content">
+      <div class="page-header">
+        <div>
+          <h3>Content controls</h3>
+          <p class="section-intro">Quick links for note and task moderation.</p>
+        </div>
+      </div>
+      <div class="admin-action-grid">
+        <button class="btn">Review Notes</button>
+        <button class="btn btn-secondary">Review Tasks</button>
+        <button class="btn btn-secondary">Review Files</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../app.js"></script>
+<script>
+requireAuth();
+initDarkMode();
+
+async function loadAdminStats() {
+  const res = await apiFetch('/auth/admin-stats');
+  if (!res.success) {
+    console.warn('Admin stats load failed', res.message);
+    return;
+  }
+
+  document.getElementById('admin-total-users').textContent = res.data.total_users;
+  document.getElementById('admin-active-users').textContent = res.data.active_users;
+  document.getElementById('admin-total-notes').textContent = res.data.total_notes;
+  document.getElementById('admin-total-tasks').textContent = res.data.total_tasks;
+  document.getElementById('admin-shared-notes').textContent = res.data.shared_notes;
+  document.getElementById('admin-blocked-users').textContent = res.data.blocked_users;
+}
+
+async function loadAdminUsers() {
+  const res = await apiFetch('/auth/admin-users');
+  const list = document.getElementById('admin-user-list');
+  if (!res.success || !Array.isArray(res.data)) {
+    list.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Unable to load users.</td></tr>';
+    return;
+  }
+
+  if (res.data.length === 0) {
+    list.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No users found.</td></tr>';
+    return;
+  }
+
+  list.innerHTML = res.data.map(user => `
+    <tr>
+      <td>${user.name || '—'}</td>
+      <td>${user.email || '—'}</td>
+      <td>${user.role}</td>
+      <td>${user.is_blocked ? '<span class="admin-badge admin-badge-danger">Blocked</span>' : '<span class="admin-badge admin-badge-success">Active</span>'}</td>
+      <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}</td>
+      <td>
+        <button type="button" class="btn btn-secondary" onclick="viewAdminUser('${user.id}')">View</button>
+        <button type="button" class="btn btn-danger" onclick="removeAdminUser('${user.id}')">Remove</button>
+        <button type="button" class="btn btn-secondary" onclick="toggleBlockUser('${user.id}', ${user.is_blocked ? 'false' : 'true'})">${user.is_blocked ? 'Unblock' : 'Block'}</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function setAdminUserDetails(user) {
+  const details = document.getElementById('admin-user-details');
+  if (!details) return;
+
+  document.getElementById('detail-name').textContent = user.name || '—';
+  document.getElementById('detail-email').textContent = user.email || '—';
+  document.getElementById('detail-role').textContent = user.role || '—';
+  document.getElementById('detail-status').textContent = user.is_blocked ? 'Blocked' : 'Active';
+  document.getElementById('detail-joined').textContent = user.created_at ? new Date(user.created_at).toLocaleString() : '—';
+  document.getElementById('detail-last-active').textContent = user.last_active ? new Date(user.last_active).toLocaleString() : '—';
+  document.getElementById('detail-usage').textContent = `${user.ai_usage_count || 0} / ${user.ai_usage_limit || 0}`;
+  details.style.display = 'block';
+}
+
+async function viewAdminUser(userId) {
+  const res = await apiFetch(`/auth/admin-users/${userId}`);
+  if (!res.success) {
+    alert(res.message || 'Unable to fetch user details.');
+    return;
+  }
+  setAdminUserDetails(res.data);
+}
+
+async function removeAdminUser(userId) {
+  if (!confirm('Remove this user permanently?')) return;
+  const res = await apiFetch(`/auth/admin-users/${userId}`, 'DELETE');
+  if (!res.success) {
+    alert(res.message || 'Unable to remove user.');
+    return;
+  }
+  await loadAdminUsers();
+  const details = document.getElementById('admin-user-details');
+  if (details) details.style.display = 'none';
+}
+
+async function toggleBlockUser(userId, block) {
+  const res = await apiFetch(`/auth/admin-users/${userId}/block`, 'POST', { block });
+  if (!res.success) {
+    alert(res.message || 'Unable to update user status.');
+    return;
+  }
+  await loadAdminUsers();
+  if (document.getElementById('admin-user-details').style.display === 'block') {
+    viewAdminUser(userId);
+  }
+}
+
+loadAdminStats();
+loadAdminUsers();
+
+document.getElementById('logout-sidebar').onclick = (e) => {
+  e.preventDefault();
+  localStorage.removeItem('token');
+  localStorage.removeItem('adminUser');
+  window.location.href = 'admin-login.html';
+};
+
+function setSection(sectionId) {
+  const sections = document.querySelectorAll('.admin-panel-section');
+  const links = document.querySelectorAll('.sidebar-nav a');
+  sections.forEach(section => {
+    section.classList.toggle('active', section.id === `${sectionId}-section`);
+  });
+  links.forEach(link => {
+    link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
+  });
+}
+
+function initAdminSections() {
+  const links = document.querySelectorAll('.sidebar-nav a');
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    if (href && href.startsWith('#')) {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const sectionId = href.substring(1);
+        setSection(sectionId);
+      });
+    }
+  });
+}
+
+initAdminSections();
+setSection('analytics');
+</script>
+</body>
+</html>

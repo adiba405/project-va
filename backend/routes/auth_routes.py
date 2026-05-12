@@ -8,8 +8,10 @@ auth_bp = Blueprint('auth', __name__)
 def register():
     return register_user(current_app)
 
-@auth_bp.route('/login', methods=['POST'])
+@auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    if __import__('flask').request.method == 'GET':
+        return {'success': False, 'message': 'Use POST to submit credentials'}, 200
     return login_user(current_app)
 
 @auth_bp.route('/profile', methods=['GET'])
