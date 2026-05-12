@@ -1,21 +1,24 @@
 :root {
-  --primary: #1E7D46;
-  --primary-light: #38A479;
-  --primary-dark: #0F2A14;
-  --secondary: #16351F;
-  --bg-main: #07140D;
-  --bg-subtle: #0F2315;
-  --bg-gradient: linear-gradient(135deg, #0B190F 0%, #112E1D 45%, #163927 100%);
-  --card-bg: rgba(18, 43, 24, 0.94);
-  --card-border: 1px solid rgba(87, 155, 116, 0.18);
+  --primary: #1e7d46; /* Emerald green for growth/learning */
+  --primary-light: #2ad27f;
+  --primary-dark: #0b4b1e;
+  --secondary: #4a90e2; /* Blue for tech/trust */
+  --accent: #7c3aed; /* Purple for AI/creativity */
+  --error: #dc2626; /* Red for alerts */
+  --success: #16a34a; /* Green for confirmations */
+  --bg-main: #07140d;
+  --bg-subtle: #0f2315;
+  --bg-gradient: linear-gradient(135deg, #0a0f0c 0%, #020503 50%, #0a1a0d 100%);
+  --card-bg: rgba(22, 55, 32, 0.95);
+  --card-border: 1px solid rgba(30, 125, 70, 0.2);
   --card-shadow: 0 18px 60px rgba(2, 19, 9, 0.28);
-  --text-main: #E8F4E9;
-  --text-muted: #9DBEA7;
+  --text-main: #f4fff8;
+  --text-muted: rgba(232, 244, 233, 0.7);
   --sidebar-bg: rgba(9, 24, 16, 0.98);
   --sidebar-border: rgba(40, 86, 58, 0.34);
-  --input-bg: rgba(16, 38, 25, 0.95);
-  --input-border: rgba(41, 97, 63, 0.35);
-  --accent-soft: rgba(38, 104, 65, 0.15);
+  --input-bg: rgba(8, 18, 12, 0.86);
+  --input-border: rgba(255,255,255,0.12);
+  --accent-soft: rgba(30, 125, 70, 0.1);
   --accent-strong: rgba(30, 125, 70, 0.18);
   --transition: all 0.28s ease;
   --radius: 14px;
@@ -424,8 +427,9 @@ h3 { font-size: 1.25rem; }
 /* Auth Pages */
 .auth-page {
   min-height: 100vh;
-  background: radial-gradient(circle at top left, rgba(19, 96, 43, 0.2) 0%, transparent 30%),
-              radial-gradient(circle at bottom right, rgba(20, 140, 60, 0.15) 0%, transparent 24%),
+  background: radial-gradient(circle at top left, rgba(30, 125, 70, 0.18) 0%, transparent 28%),
+              radial-gradient(circle at bottom right, rgba(74, 144, 226, 0.12) 0%, transparent 22%),
+              radial-gradient(circle at center, rgba(124, 58, 237, 0.08) 0%, transparent 35%),
               linear-gradient(135deg, #070d09 0%, #020805 48%, #08170d 100%);
   display: flex;
   align-items: center;
@@ -443,9 +447,9 @@ h3 { font-size: 1.25rem; }
 .page-bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 20% 20%, rgba(37, 183, 108, 0.18), transparent 24%),
-              radial-gradient(circle at 80% 15%, rgba(56, 222, 125, 0.12), transparent 18%),
-              radial-gradient(circle at 45% 70%, rgba(22, 96, 52, 0.12), transparent 20%),
+  background: radial-gradient(circle at 20% 20%, rgba(30, 125, 70, 0.18), transparent 24%),
+              radial-gradient(circle at 80% 15%, rgba(74, 144, 226, 0.12), transparent 18%),
+              radial-gradient(circle at 45% 70%, rgba(124, 58, 237, 0.08), transparent 20%),
               linear-gradient(135deg, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
   filter: saturate(1.2);
   z-index: 1;
