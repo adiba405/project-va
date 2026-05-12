@@ -14,7 +14,7 @@
       <span>ADMIN PANEL</span>
     </div>
     <nav class="nav-links sidebar-nav">
-      <a href="admin-dashboard.html" class="active">Dashboard</a>
+      <a href="#dashboard" class="active">Dashboard</a>
       <a href="#users">Users</a>
       <a href="#content">Content</a>
       <a href="#analytics">Analytics</a>
@@ -26,97 +26,162 @@
   <main class="main-content">
     <section class="page-hero admin-hero">
       <p class="auth-kicker">Admin Control Center</p>
-      <h1>Platform overview</h1>
-      <p class="section-intro">Manage users, monitor content, and review system health for your AI Study Assistant.</p>
+      <h1 id="admin-hero-title">Platform overview</h1>
+      <p class="section-intro" id="admin-hero-copy">Manage users, monitor content, and review system health for your AI Study Assistant.</p>
     </section>
 
-    <div class="grid-3 admin-metric-grid">
-      <div class="card admin-metric-card">
-        <p class="auth-kicker">Users</p>
-        <h2 id="admin-total-users">0</h2>
-        <p class="section-intro">Total registered accounts</p>
-      </div>
-      <div class="card admin-metric-card">
-        <p class="auth-kicker">Active Today</p>
-        <h2 id="admin-active-users">0</h2>
-        <p class="section-intro">Users active in the last 24 hours</p>
-      </div>
-      <div class="card admin-metric-card">
-        <p class="auth-kicker">Notes</p>
-        <h2 id="admin-total-notes">0</h2>
-        <p class="section-intro">Knowledge nodes created</p>
-      </div>
-      <div class="card admin-metric-card">
-        <p class="auth-kicker">Tasks</p>
-        <h2 id="admin-total-tasks">0</h2>
-        <p class="section-intro">Tasks across the platform</p>
-      </div>
-      <div class="card admin-metric-card">
-        <p class="auth-kicker">Shared Notes</p>
-        <h2 id="admin-shared-notes">0</h2>
-        <p class="section-intro">Notes shared with other users</p>
-      </div>
-      <div class="card admin-metric-card">
-        <p class="auth-kicker">Blocked Accounts</p>
-        <h2 id="admin-blocked-users">0</h2>
-        <p class="section-intro">Users currently blocked</p>
+    <div id="dashboard-section" class="admin-panel-section active">
+      <div class="grid-3 admin-metric-grid">
+        <div class="card admin-metric-card">
+          <p class="auth-kicker">Users</p>
+          <h2 id="admin-total-users">0</h2>
+          <p class="section-intro">Total registered accounts</p>
+        </div>
+        <div class="card admin-metric-card">
+          <p class="auth-kicker">Active Today</p>
+          <h2 id="admin-active-users">0</h2>
+          <p class="section-intro">Users active in the last 24 hours</p>
+        </div>
+        <div class="card admin-metric-card">
+          <p class="auth-kicker">Notes</p>
+          <h2 id="admin-total-notes">0</h2>
+          <p class="section-intro">Knowledge nodes created</p>
+        </div>
+        <div class="card admin-metric-card">
+          <p class="auth-kicker">Tasks</p>
+          <h2 id="admin-total-tasks">0</h2>
+          <p class="section-intro">Tasks across the platform</p>
+        </div>
+        <div class="card admin-metric-card">
+          <p class="auth-kicker">Shared Notes</p>
+          <h2 id="admin-shared-notes">0</h2>
+          <p class="section-intro">Notes shared with other users</p>
+        </div>
+        <div class="card admin-metric-card">
+          <p class="auth-kicker">Blocked Accounts</p>
+          <h2 id="admin-blocked-users">0</h2>
+          <p class="section-intro">Users currently blocked</p>
+        </div>
       </div>
     </div>
 
-    <div class="card admin-section" id="users">
-      <div class="page-header">
-        <div>
-          <h3>User overview</h3>
-          <p class="section-intro">Recent signups and account status.</p>
-        </div>
-      </div>
-      <div id="admin-user-details" class="admin-section" style="display:none; margin-bottom:1rem;">
+    <div id="users-section" class="admin-panel-section">
+      <div class="card admin-section">
         <div class="page-header">
           <div>
-            <h3>User details</h3>
-            <p class="section-intro">Click "View" to inspect a user, then remove or block as needed.</p>
+            <h3>User overview</h3>
+            <p class="section-intro">Recent signups and account status.</p>
           </div>
         </div>
-        <div style="display:flex; flex-wrap:wrap; gap:1rem;">
-          <div><strong>Name:</strong> <span id="detail-name">—</span></div>
-          <div><strong>Email:</strong> <span id="detail-email">—</span></div>
-          <div><strong>Role:</strong> <span id="detail-role">—</span></div>
-          <div><strong>Status:</strong> <span id="detail-status">—</span></div>
-          <div><strong>Joined:</strong> <span id="detail-joined">—</span></div>
-          <div><strong>Last active:</strong> <span id="detail-last-active">—</span></div>
-          <div><strong>AI usage:</strong> <span id="detail-usage">—</span></div>
+        <div id="admin-user-details" class="user-details-card" style="display:none; margin-bottom:1rem; padding:1.5rem;">
+          <div class="page-header">
+            <div>
+              <h3>User details</h3>
+              <p class="section-intro">Click "View" to inspect a user, then remove or block as needed.</p>
+            </div>
+          </div>
+          <div class="detail-grid">
+            <div><strong>Name:</strong> <span id="detail-name">—</span></div>
+            <div><strong>Email:</strong> <span id="detail-email">—</span></div>
+            <div><strong>Role:</strong> <span id="detail-role">—</span></div>
+            <div><strong>Status:</strong> <span id="detail-status">—</span></div>
+            <div><strong>Joined:</strong> <span id="detail-joined">—</span></div>
+            <div><strong>Last active:</strong> <span id="detail-last-active">—</span></div>
+            <div><strong>AI usage:</strong> <span id="detail-usage">—</span></div>
+          </div>
         </div>
-      </div>
-      <div class="admin-table-wrapper">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Joined</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="admin-user-list">
-            <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading users...</td></tr>
-          </tbody>
-        </table>
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-user-list">
+              <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Loading users...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <div class="card admin-section" id="content">
-      <div class="page-header">
-        <div>
-          <h3>Content controls</h3>
-          <p class="section-intro">Quick links for note and task moderation.</p>
+    <div id="content-section" class="admin-panel-section">
+      <div class="card admin-section">
+        <div class="page-header">
+          <div>
+            <h3>Content controls</h3>
+            <p class="section-intro">Quick links for note and task moderation.</p>
+          </div>
+        </div>
+        <div class="admin-action-grid">
+          <button class="btn">Review Notes</button>
+          <button class="btn btn-secondary">Review Tasks</button>
+          <button class="btn btn-secondary">Review Files</button>
         </div>
       </div>
-      <div class="admin-action-grid">
-        <button class="btn">Review Notes</button>
-        <button class="btn btn-secondary">Review Tasks</button>
-        <button class="btn btn-secondary">Review Files</button>
+    </div>
+
+    <div id="analytics-section" class="admin-panel-section">
+      <div class="grid-3 admin-metric-grid">
+        <div class="card admin-metric-card">
+          <p class="auth-kicker">New Users</p>
+          <h2>24</h2>
+          <p class="section-intro">Signups over the last 7 days.</p>
+        </div>
+        <div class="card admin-metric-card">
+          <p class="auth-kicker">Note Activity</p>
+          <h2>112</h2>
+          <p class="section-intro">Notes created and updated today.</p>
+        </div>
+        <div class="card admin-metric-card">
+          <p class="auth-kicker">Task Progress</p>
+          <h2>68%</h2>
+          <p class="section-intro">Completion rate across active tasks.</p>
+        </div>
+      </div>
+      <div class="card admin-section" style="margin-top:1.5rem;">
+        <div class="page-header">
+          <div>
+            <h3>Platform performance</h3>
+            <p class="section-intro">Review key trends and health signals at a glance.</p>
+          </div>
+        </div>
+        <div class="admin-action-grid">
+          <div class="setting-card">
+            <h4>Engagement</h4>
+            <p>AI session activity is steady with a 14% rise in daily interactions.</p>
+          </div>
+          <div class="setting-card">
+            <h4>Content health</h4>
+            <p>80% of notes are published and reviewed within 24 hours.</p>
+          </div>
+          <div class="setting-card">
+            <h4>System alerts</h4>
+            <p>No critical issues detected. Everything is operating smoothly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="settings-section" class="admin-panel-section">
+      <div class="card admin-settings-grid">
+        <div class="setting-card">
+          <h4>Access control</h4>
+          <p>Manage roles, user permissions, and block/unblock policies.</p>
+        </div>
+        <div class="setting-card">
+          <h4>Content rules</h4>
+          <p>Configure moderation settings and auto-review behavior for notes.</p>
+        </div>
+        <div class="setting-card">
+          <h4>Platform options</h4>
+          <p>Set default AI limits, notifications, and system preferences.</p>
+        </div>
       </div>
     </div>
   </main>
@@ -228,15 +293,54 @@ document.getElementById('logout-sidebar').onclick = (e) => {
   window.location.href = 'admin-login.html';
 };
 
+const sectionMeta = {
+  dashboard: {
+    title: 'Platform overview',
+    copy: 'Manage users, monitor content, and review system health for your AI Study Assistant.'
+  },
+  users: {
+    title: 'User management',
+    copy: 'View and moderate registered accounts from the user panel.'
+  },
+  content: {
+    title: 'Content moderation',
+    copy: 'Approve or inspect notes, tasks, and shared resources.'
+  },
+  analytics: {
+    title: 'Analytics dashboard',
+    copy: 'Track platform performance, engagement, and usage trends.'
+  },
+  settings: {
+    title: 'Settings & configuration',
+    copy: 'Manage system preferences, access controls, and content rules.'
+  }
+};
+
+function updateHero(sectionId) {
+  const heroTitle = document.getElementById('admin-hero-title');
+  const heroCopy = document.getElementById('admin-hero-copy');
+  const meta = sectionMeta[sectionId] || sectionMeta.dashboard;
+  if (heroTitle) heroTitle.textContent = meta.title;
+  if (heroCopy) heroCopy.textContent = meta.copy;
+}
+
 function setSection(sectionId) {
+  if (!sectionMeta[sectionId]) {
+    sectionId = 'dashboard';
+  }
+
   const sections = document.querySelectorAll('.admin-panel-section');
   const links = document.querySelectorAll('.sidebar-nav a');
+
   sections.forEach(section => {
     section.classList.toggle('active', section.id === `${sectionId}-section`);
   });
+
   links.forEach(link => {
     link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
   });
+
+  updateHero(sectionId);
 }
 
 function initAdminSections() {
@@ -247,14 +351,19 @@ function initAdminSections() {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const sectionId = href.substring(1);
-        setSection(sectionId);
+        window.location.hash = sectionId;
       });
     }
   });
 }
 
+window.addEventListener('hashchange', () => {
+  const sectionId = window.location.hash.substring(1) || 'dashboard';
+  setSection(sectionId);
+});
+
 initAdminSections();
-setSection('analytics');
+setSection(window.location.hash.substring(1) || 'dashboard');
 </script>
 </body>
 </html>
