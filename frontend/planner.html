@@ -33,6 +33,7 @@
       <div class="card">
         <h3>Initialize Task</h3>
         <p class="section-intro">Create a new task node with specific metrics.</p>
+        <div id="task-form-error" style="display:none; margin-bottom: 1rem; padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(239,68,68,0.35); background: rgba(239,68,68,0.08); color: rgba(255,255,255,0.92);"></div>
         <input id="task-title" class="input-field" placeholder="Task Title">
         <input id="task-deadline" class="input-field" type="date">
         <select id="task-priority" class="input-field">
@@ -42,6 +43,7 @@
         </select>
         <button class="btn" id="add-task" style="width: 100%;">Commit Task</button>
       </div>
+
 
       <div class="card">
         <h3>Active Operations</h3>
@@ -142,19 +144,63 @@ window.changeTaskPage = (delta) => { taskPage = Math.max(1, taskPage + delta); l
 window.markDone = async(id, newStatus)=>{ if((await apiFetch(`/tasks/${id}`, 'PUT', {status:newStatus})).success) loadTasks(); };
 window.removeTask = async(id)=>{ if(confirm('Purge task?')) { if((await apiFetch(`/tasks/${id}`, 'DELETE')).success) loadTasks(); } };
 
-document.getElementById('add-task').onclick = async()=>{
-  const title = document.getElementById('task-title').value.trim();
-  const deadline = document.getElementById('task-deadline').value;
-  const priority = document.getElementById('task-priority').value;
-  if(!title||!deadline) return;
-  if((await apiFetch('/tasks','POST',{title,deadline,priority})).success) {
-    document.getElementById('task-title').value='';
-    document.getElementById('task-deadline').value='';
+document.getElementById('add-task') && (document.getElementById('add-task').onclick = async () => {
+  const errBox = document.getElementById('task-form-error');
+  const showErr = (msg) => {
+    if (!errBox) return;
+    errBox.textContent = msg;
+    errBox.style.display = 'block';
+  };
+  const clearErr = () => {
+    if (!errBox) return;
+    errBox.textContent = '';
+    errBox.style.display = 'none';
+  };
+
+  try {
+    clearErr();
+    if (typeof apiFetch !== 'function') {
+      showErr('Client error: apiFetch is not available (app.js failed to load).');
+      return;
+    }
+
+    const titleEl = document.getElementById('task-title');
+    const deadlineEl = document.getElementById('task-deadline');
+    const priorityEl = document.getElementById('task-priority');
+
+    if (!titleEl || !deadlineEl || !priorityEl) {
+      showErr('Client error: task form elements are missing from the page.');
+      return;
+    }
+
+    const title = titleEl.value.trim();
+    const deadline = deadlineEl.value;
+    const priority = priorityEl.value;
+
+    if (!title || !deadline) {
+      showErr('Please enter both Task Title and Deadline.');
+      return;
+    }
+
+    const res = await apiFetch('/tasks', 'POST', { title, deadline, priority });
+    if (!res || !res.success) {
+      showErr(res?.message || 'Failed to commit task.');
+      return;
+    }
+
+    titleEl.value = '';
+    deadlineEl.value = '';
+    priorityEl.value = 'medium';
+
     taskPage = 1;
-    loadTasks();
+    await loadTasks();
+  } catch (e) {
+    showErr('Unexpected error while committing task.');
   }
-};
+});
+
 loadTasks();
+
 </script>
 </body>
 </html>
