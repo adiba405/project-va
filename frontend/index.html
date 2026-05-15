@@ -37,7 +37,7 @@
           <div class="form-group">
             <label for="email">Email</label>
             <div class="field-with-icon">
-              <span class="field-icon">📧</span>
+              <span class="field-icon"></span>
               <input id="email" class="input-field" placeholder="Enter your email" type="email" aria-label="Email" required />
             </div>
           </div>
@@ -45,7 +45,7 @@
           <div class="form-group">
             <label for="password">Password</label>
             <div class="field-with-icon">
-              <span class="field-icon">🔒</span>
+              <span class="field-icon"></span>
               <input id="password" class="input-field" placeholder="Enter your password" type="password" aria-label="Password" required />
               <button type="button" class="password-toggle" id="password-toggle" aria-label="Show password">Show</button>
             </div>
@@ -67,6 +67,37 @@
 </div>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<!-- Help / About Modal -->
+<div id="about-modal" class="modal-overlay" style="display: none;">
+  <div class="modal-card">
+    <button class="modal-close" id="modal-close">&times;</button>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>About AI-Study Assistant</h2>
+      </div>
+      <div class="modal-body">
+        <h3>Welcome to AI-Study Assistant</h3>
+        <p>AI-Study Assistant is a comprehensive platform designed to help students learn more effectively and manage their academic work efficiently.</p>
+        
+        <h4>Features</h4>
+        <ul>
+          <li><strong>AI Assistant:</strong> Get instant answers and explanations for your study questions</li>
+          <li><strong>Note Management:</strong> Organize and manage your study notes seamlessly</li>
+          <li><strong>Task Planning:</strong> Create and track your academic tasks and deadlines</li>
+          <li><strong>File Analysis:</strong> Upload and analyze documents for key insights</li>
+          <li><strong>Collaboration:</strong> Share notes and resources with classmates</li>
+        </ul>
+        
+        <h4>Getting Started</h4>
+        <p>Sign in with your student account to access all features. If you're an administrator, use the Admin mode to manage the system.</p>
+        
+        <h4>Need Help?</h4>
+        <p>For support or questions, please contact your institution's IT support team.</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 <script src="neural-bg.js"></script>
@@ -161,6 +192,38 @@ loginBtn.onclick = async () => {
 
 requireModeButtons();
 setActiveMode('student');
+
+// Help / About Modal Handler
+const aboutLink = document.querySelector('a[href="#about"]');
+const aboutModal = document.getElementById('about-modal');
+const modalClose = document.getElementById('modal-close');
+
+if (aboutLink) {
+  aboutLink.onclick = (e) => {
+    e.preventDefault();
+    aboutModal.style.display = 'flex';
+  };
+}
+
+if (modalClose) {
+  modalClose.onclick = () => {
+    aboutModal.style.display = 'none';
+  };
+}
+
+// Close modal when clicking outside the modal card
+aboutModal.onclick = (e) => {
+  if (e.target === aboutModal) {
+    aboutModal.style.display = 'none';
+  }
+};
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && aboutModal.style.display === 'flex') {
+    aboutModal.style.display = 'none';
+  }
+});
 </script>
 </body>
 </html>
