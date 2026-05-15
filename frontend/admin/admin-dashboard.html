@@ -28,6 +28,7 @@
       <p class="auth-kicker">Admin Control Center</p>
       <h1 id="admin-hero-title">Platform overview</h1>
       <p class="section-intro" id="admin-hero-copy">Manage users, monitor content, and review system health for your AI Study Assistant.</p>
+      <button type="button" class="btn btn-secondary" id="refresh-stats-btn" style="margin-top: 1rem;">Refresh Data</button>
     </section>
 
     <div id="dashboard-section" class="admin-panel-section active">
@@ -193,47 +194,63 @@ requireAuth();
 initDarkMode();
 
 async function loadAdminStats() {
-  const res = await apiFetch('/auth/admin-stats');
-  if (!res.success) {
-    console.warn('Admin stats load failed', res.message);
-    return;
-  }
+  console.log('Loading admin stats...');
+  try {
+    const res = await apiFetch('/auth/admin-stats');
+    console.log('Admin stats response:', res);
+    
+    if (!res.success) {
+      console.error('Admin stats load failed:', res.message);
+      return;
+    }
 
-  document.getElementById('admin-total-users').textContent = res.data.total_users;
-  document.getElementById('admin-active-users').textContent = res.data.active_users;
-  document.getElementById('admin-total-notes').textContent = res.data.total_notes;
-  document.getElementById('admin-total-tasks').textContent = res.data.total_tasks;
-  document.getElementById('admin-shared-notes').textContent = res.data.shared_notes;
-  document.getElementById('admin-blocked-users').textContent = res.data.blocked_users;
+    document.getElementById('admin-total-users').textContent = res.data.total_users || 0;
+    document.getElementById('admin-active-users').textContent = res.data.active_users || 0;
+    document.getElementById('admin-total-notes').textContent = res.data.total_notes || 0;
+    document.getElementById('admin-total-tasks').textContent = res.data.total_tasks || 0;
+    document.getElementById('admin-shared-notes').textContent = res.data.shared_notes || 0;
+    document.getElementById('admin-blocked-users').textContent = res.data.blocked_users || 0;
+    console.log('Admin stats updated successfully');
+  } catch (error) {
+    console.error('Error loading admin stats:', error);
+  }
 }
 
 async function loadAdminUsers() {
-  const res = await apiFetch('/auth/admin-users');
-  const list = document.getElementById('admin-user-list');
-  if (!res.success || !Array.isArray(res.data)) {
-    list.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Unable to load users.</td></tr>';
-    return;
-  }
+  console.log('Loading admin users...');
+  try {
+    const res = await apiFetch('/auth/admin-users');
+    console.log('Admin users response:', res);
+    
+    const list = document.getElementById('admin-user-list');
+    if (!res.success || !Array.isArray(res.data)) {
+      list.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Unable to load users.</td></tr>';
+      return;
+    }
 
-  if (res.data.length === 0) {
-    list.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No users found.</td></tr>';
-    return;
-  }
+    if (res.data.length === 0) {
+      list.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No users found.</td></tr>';
+      return;
+    }
 
-  list.innerHTML = res.data.map(user => `
-    <tr>
-      <td>${user.name || '—'}</td>
-      <td>${user.email || '—'}</td>
-      <td>${user.role}</td>
-      <td>${user.is_blocked ? '<span class="admin-badge admin-badge-danger">Blocked</span>' : '<span class="admin-badge admin-badge-success">Active</span>'}</td>
-      <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}</td>
-      <td>
-        <button type="button" class="btn btn-secondary" onclick="viewAdminUser('${user.id}')">View</button>
-        <button type="button" class="btn btn-danger" onclick="removeAdminUser('${user.id}')">Remove</button>
-        <button type="button" class="btn btn-secondary" onclick="toggleBlockUser('${user.id}', ${user.is_blocked ? 'false' : 'true'})">${user.is_blocked ? 'Unblock' : 'Block'}</button>
-      </td>
-    </tr>
-  `).join('');
+    list.innerHTML = res.data.map(user => `
+      <tr>
+        <td>${user.name || '—'}</td>
+        <td>${user.email || '—'}</td>
+        <td>${user.role}</td>
+        <td>${user.is_blocked ? '<span class="admin-badge admin-badge-danger">Blocked</span>' : '<span class="admin-badge admin-badge-success">Active</span>'}</td>
+        <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}</td>
+        <td>
+          <button type="button" class="btn btn-secondary" onclick="viewAdminUser('${user.id}')">View</button>
+          <button type="button" class="btn btn-danger" onclick="removeAdminUser('${user.id}')">Remove</button>
+          <button type="button" class="btn btn-secondary" onclick="toggleBlockUser('${user.id}', ${user.is_blocked ? 'false' : 'true'})">${user.is_blocked ? 'Unblock' : 'Block'}</button>
+        </td>
+      </tr>
+    `).join('');
+    console.log('Admin users updated successfully');
+  } catch (error) {
+    console.error('Error loading admin users:', error);
+  }
 }
 
 function setAdminUserDetails(user) {
@@ -285,6 +302,25 @@ async function toggleBlockUser(userId, block) {
 
 loadAdminStats();
 loadAdminUsers();
+
+// Refresh button handler
+const refreshBtn = document.getElementById('refresh-stats-btn');
+if (refreshBtn) {
+  refreshBtn.onclick = async () => {
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = 'Refreshing...';
+    await loadAdminStats();
+    await loadAdminUsers();
+    refreshBtn.disabled = false;
+    refreshBtn.textContent = 'Refresh Data';
+  };
+}
+
+// Auto-refresh stats every 30 seconds
+setInterval(() => {
+  console.log('Auto-refreshing admin stats...');
+  loadAdminStats();
+}, 30000);
 
 document.getElementById('logout-sidebar').onclick = (e) => {
   e.preventDefault();
