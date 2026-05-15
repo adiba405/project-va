@@ -9,9 +9,17 @@ class UserModel:
         self.db = app.mongo.db
         self.collection = self.db[self.COLLECTION]
         
-        # Ensure indexes
-        self.collection.create_index('email', unique=True)
-        self.collection.create_index('role')
+        # Ensure indexes (ignore if they already exist with same/different options)
+        try:
+            # Unique email index
+            self.collection.create_index('email', unique=True)
+        except Exception:
+            pass
+        try:
+            self.collection.create_index('role')
+        except Exception:
+            pass
+
     
     def create_user(self, name, email, password, role='user'):
         """Create new user"""

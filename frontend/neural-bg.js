@@ -73,7 +73,7 @@ class NeuralBackground {
 
             this.ctx.beginPath();
             this.ctx.arc(node.x, node.y, 1.5 + glow, 0, Math.PI * 2);
-            this.ctx.fillStyle = `rgba(0, 229, 255, ${0.2 + glow * 0.5})`;
+            this.ctx.fillStyle = `rgba(244, 244, 245, ${0.16 + glow * 0.38})`;
             this.ctx.fill();
         });
 
@@ -89,7 +89,7 @@ class NeuralBackground {
                     this.ctx.moveTo(this.nodes[i].x, this.nodes[i].y);
                     this.ctx.lineTo(this.nodes[j].x, this.nodes[j].y);
                     const opacity = (1 - dist / this.maxDistance) * 0.2;
-                    this.ctx.strokeStyle = `rgba(0, 229, 255, ${opacity})`;
+                    this.ctx.strokeStyle = `rgba(244, 244, 245, ${opacity})`;
                     this.ctx.lineWidth = 0.5;
                     this.ctx.stroke();
                 }
@@ -105,7 +105,7 @@ class NeuralBackground {
                     this.ctx.moveTo(this.nodes[i].x, this.nodes[i].y);
                     this.ctx.lineTo(this.mouse.x, this.mouse.y);
                     const opacity = (1 - dist / 200) * 0.15;
-                    this.ctx.strokeStyle = `rgba(0, 229, 255, ${opacity})`;
+                    this.ctx.strokeStyle = `rgba(244, 244, 245, ${opacity})`;
                     this.ctx.stroke();
                 }
             }

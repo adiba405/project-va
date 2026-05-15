@@ -77,6 +77,12 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(admin_auth_bp, url_prefix='/api/auth')
     try:
+        from .routes.password_reset_routes import password_reset_bp
+        app.register_blueprint(password_reset_bp, url_prefix='/api/auth')
+    except Exception:
+        pass
+
+    try:
         from .routes.admin_moderation_routes import admin_moderation_bp
         app.register_blueprint(admin_moderation_bp, url_prefix='/api/auth')
     except Exception:

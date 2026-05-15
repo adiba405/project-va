@@ -11,6 +11,9 @@ def register_user(app):
     email = body.get('email', '').strip().lower()
     password = body.get('password', '')
 
+    app.logger.info(f"Register attempt: email={email}")
+
+
     if not name or not email or not password:
         return resp(False, 'Name, email, and password are required', status=400)
 
@@ -23,6 +26,7 @@ def register_user(app):
 
 
 def login_user(app):
+
     body = request.get_json() or {}
     email = body.get('email', '').strip().lower()
     password = body.get('password', '')

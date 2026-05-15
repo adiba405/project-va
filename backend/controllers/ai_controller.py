@@ -2,7 +2,7 @@ import os
 
 from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from openai import OpenAI
+from groq import Groq
 
 from controllers.file_analyzer import extract_text_from_file
 from utils.helpers import parse_object_id, resp
@@ -10,22 +10,33 @@ from utils.helpers import parse_object_id, resp
 
 CONTEXTUAL_STUDY_ASSISTANT_PROMPT = (
     "You are a helpful AI study assistant.\n"
-    "- Use the provided study material as your primary context when it is available.\n"
-    "- If notes or uploaded material are provided, prioritize them in your answer.\n"
-    "- You may use general knowledge when the context is incomplete or the user asks beyond it.\n"
+    "Use the provided study material as your primary context when it is available.\n"
+    "If notes or uploaded material are provided, prioritize them in your answer.\n"
+    "If the user asks about the user's real app data (e.g., 'how many tasks', 'how many notes'), you MUST only answer using numeric data provided in the prompt/context.\n"
+    "If the required data is not provided, respond that you don't have access to it and tell the user what to connect (file/note) or to use the relevant dashboard section.\n"
     "- Keep answers clear, relevant, and concise unless the user asks for detail."
 )
 
 
 def get_ai_client():
-    api_key = os.getenv('OPENAI_API_KEY', '').strip()
+    # Ensure .env is loaded in this module (some runners may not load it before imports)
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except Exception:
+        pass
+
+    api_key = os.getenv('GROQ_API_KEY', '').strip()
     if not api_key:
         return None
-    return OpenAI(api_key=api_key)
+    return Groq(api_key=api_key)
 
 
 def get_ai_model():
-    return os.getenv('OPENAI_MODEL', 'gpt-5.2-chat-latest').strip() or 'gpt-5.2-chat-latest'
+    # Groq models (example): llama3-70b-8192, llama3-8b-8192, mixtral-8x7b-32768
+    # NOTE: Groq has decommissioned older llama3 variants. Use a currently supported model by default.
+    # You can override via .env: GROQ_MODEL=...
+    return os.getenv('GROQ_MODEL', 'llama-3.1-8b-instant').strip() or 'llama-3.1-8b-instant'
 
 
 def _normalize_context_text(text):
@@ -108,6 +119,24 @@ def _build_summary_prompt(text):
     )
 
 
+def _get_dashboard_numeric_context(app):
+    """Return numeric stats used to answer dashboard-specific questions."""
+    user_id = get_jwt_identity()
+
+    notes_count = app.mongo.db.notes.count_documents({'user_id': user_id})
+    tasks_total = app.mongo.db.tasks.count_documents({'user_id': user_id})
+    completed_tasks = app.mongo.db.tasks.count_documents({'user_id': user_id, 'status': 'completed'})
+    pending_tasks = tasks_total - completed_tasks
+
+    return (
+        "Dashboard numeric context (user-specific):\n"
+        f"- Notes: {notes_count}\n"
+        f"- Total tasks: {tasks_total}\n"
+        f"- Completed tasks: {completed_tasks}\n"
+        f"- Pending tasks: {pending_tasks}"
+    )
+
+
 @jwt_required()
 def answer_question(app):
     data = request.get_json() or {}
@@ -121,7 +150,14 @@ def answer_question(app):
     if not question:
         return resp(False, 'Question is required', status=400)
 
-    context_parts = [direct_context]
+    context_parts = []
+
+    # Always inject numeric dashboard context so the model can answer questions like "how many tasks".
+    context_parts.append(_get_dashboard_numeric_context(app))
+
+    if direct_context:
+        context_parts.append(direct_context)
+
     if note_id:
         note_result = _get_note_context(app, note_id)
         if not note_result.get('success'):
@@ -151,13 +187,9 @@ def answer_question(app):
     try:
         response = client.chat.completions.create(
             model=get_ai_model(),
-            messages=(
-                _build_contextual_messages(question, context_text)
-                if context_text
-                else _build_general_messages(question)
-            ),
+            messages=_build_contextual_messages(question, context_text),
             max_tokens=400,
-            temperature=0.4 if context_text else 0.7
+            temperature=0.4
         )
         ans = response.choices[0].message.content.strip()
         return resp(True, 'Answer generated', {'answer': ans})
@@ -237,3 +269,4 @@ def generate_quiz(app):
         return resp(True, 'Quiz generated', {'quiz': quiz})
     except Exception as e:
         return resp(False, f'AI service error: {str(e)}', status=500)
+
