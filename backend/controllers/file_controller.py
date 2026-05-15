@@ -62,8 +62,10 @@ def upload_file(app):
             'stored_filename': filename,
             'file_type': ext,
             'file_size': file_size,
+            'moderation_status': 'pending',
             'created_at': datetime.utcnow()
         }
+
         result = app.mongo.db.files.insert_one(file_doc)
         
         return resp(True, 'File uploaded', {

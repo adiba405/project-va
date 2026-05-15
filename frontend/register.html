@@ -8,7 +8,7 @@
 <body class="auth-page">
 <nav class="navbar">
   <div class="logo">AI-STUDY ASSISTANT</div>
-  <a href="index.html">Sign In</a>
+  <a href="login.html">Sign In</a>
 </nav>
 
 <div class="auth-shell">
@@ -50,7 +50,7 @@ registerBtn.onclick = async () => {
   const password = document.getElementById('password').value;
   const result = await apiFetch('/auth/register', 'POST', {name, email, password});
   if(!result.success){ document.getElementById('register-msg').textContent = result.message; return; }
-  window.location.href = 'index.html';
+  window.location.href = 'login.html';
 };
 </script>
 </body>

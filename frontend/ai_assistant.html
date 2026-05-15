@@ -5,7 +5,7 @@
 <title>AI Assistant | AI Study Assistant</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body class="compact-page">
 <div class="app-container">
   <aside class="sidebar">
     <div class="sidebar-logo">
@@ -41,7 +41,7 @@
       </div>
 
       <div class="card">
-        <h3>Node Connection</h3>
+        <h3>Note Connection</h3>
         <p class="section-intro">Select a knowledge node for local context.</p>
         <select id="note-select" class="input-field">
           <option value="">-- No note selected --</option>
@@ -77,7 +77,7 @@
         <p class="section-intro">Generate active recall metrics for any topic.</p>
         <input id="quiz-topic" class="input-field" placeholder="Enter topic for evaluation" />
         <button class="btn" id="quiz-btn" style="width: 100%;">Generate Evaluation</button>
-        <pre id="quiz" style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin-top: 1rem; font-family: monospace; white-space: pre-wrap; display: none;"></pre>
+        <pre id="quiz" style="background: rgba(0,0,0,0.3); padding: 0.85rem; border-radius: 8px; margin-top: 0.75rem; font-family: monospace; white-space: pre-wrap; display: none;"></pre>
       </div>
     </div>
   </main>

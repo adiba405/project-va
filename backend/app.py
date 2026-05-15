@@ -17,6 +17,9 @@ try:
     from .routes.ai_routes import ai_bp
     from .routes.auth_routes import auth_bp
     from .routes.admin_auth_routes import admin_auth_bp
+    from .routes.admin_moderation_routes import admin_moderation_bp
+
+
     from .routes.file_routes import file_bp
     from .routes.note_routes import note_bp
     from .routes.share_routes import share_bp
@@ -24,6 +27,7 @@ try:
     from .routes.user_routes import user_bp
 except ImportError:
     from routes.ai_routes import ai_bp
+
     from routes.auth_routes import auth_bp
     from routes.admin_auth_routes import admin_auth_bp
     from routes.file_routes import file_bp
@@ -72,6 +76,13 @@ def create_app():
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(admin_auth_bp, url_prefix='/api/auth')
+    try:
+        from .routes.admin_moderation_routes import admin_moderation_bp
+        app.register_blueprint(admin_moderation_bp, url_prefix='/api/auth')
+    except Exception:
+        pass
+
+
     app.register_blueprint(note_bp, url_prefix='/api/notes')
     app.register_blueprint(task_bp, url_prefix='/api/tasks')
     app.register_blueprint(ai_bp, url_prefix='/api/ai')

@@ -5,7 +5,7 @@
 <title>Study Planner | AI Study Assistant</title>
 <link rel='stylesheet' href='styles.css'>
 </head>
-<body>
+<body class="compact-page">
 <div class="app-container">
   <aside class="sidebar">
     <div class="sidebar-logo">
@@ -49,7 +49,7 @@
         <h3>Active Operations</h3>
         <p class="section-intro">Review and manage current task states.</p>
         <ul id="task-list" style="list-style: none;"></ul>
-        <div id="task-pagination" style="display:flex; gap:0.5rem; align-items:center; margin-top:1rem; flex-wrap:wrap;"></div>
+        <div id="task-pagination" style="display:flex; gap:0.5rem; align-items:center; margin-top:0.75rem; flex-wrap:wrap;"></div>
       </div>
     </div>
   </main>
@@ -103,8 +103,8 @@ async function loadTasks(){
     tasks.forEach(task=>{
       const li=document.createElement('li');
       li.className='card';
-      li.style.padding='1rem';
-      li.style.marginBottom='0.75rem';
+      li.style.padding='0.8rem 0.9rem';
+      li.style.marginBottom='0.5rem';
       li.style.borderLeft='4px solid var(--primary)';
       const statusClass = task.status === 'completed' ? 'badge-success' : 'badge-warning';
       const priorityClass = task.priority === 'high' ? 'badge-danger' : task.priority === 'medium' ? 'badge-warning' : 'badge-success';
@@ -119,7 +119,7 @@ async function loadTasks(){
             <span class="badge ${priorityClass}">${task.priority}</span>
           </div>
         </div>
-        <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+        <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
           <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="markDone('${task.id}', '${task.status === 'completed' ? 'pending' : 'completed'}')">${task.status === 'completed' ? 'Revert' : 'Complete'}</button>
           <button class="btn btn-muted" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="removeTask('${task.id}')">Purge</button>
         </div>

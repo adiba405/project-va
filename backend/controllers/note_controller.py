@@ -22,6 +22,7 @@ def list_notes(app):
     total = app.mongo.db.notes.count_documents(q)
     notes = list(app.mongo.db.notes.find(q)
                  .sort('updated_at', -1)
+
                  .skip((page - 1) * limit)
                  .limit(limit))
     for note in notes:
@@ -58,9 +59,11 @@ def create_note(app):
         'content': content,
         'drawing': drawing,
         'tags': tags,
+        'moderation_status': 'pending',
         'created_at': datetime.utcnow(),
         'updated_at': datetime.utcnow()
     }
+
     note_id = app.mongo.db.notes.insert_one(note).inserted_id
     return resp(True, 'Note created', {'id': str(note_id)})
 

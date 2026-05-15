@@ -5,7 +5,7 @@
 <title>Digital Notebook | AI Study Assistant</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body class="compact-page">
 <div class="app-container">
   <aside class="sidebar">
     <div class="sidebar-logo">
@@ -25,34 +25,26 @@
   <main class="main-content">
     <section class="page-hero">
       <p class="auth-kicker">Digital Notebook</p>
-<h1>Study Notes</h1>
-</xai:function_call)
-
-<xai:function_call name="edit_file">
-<parameter name="path">c:/Users/DELL/Documents/GitHub/project-va/frontend/notebook.html
-<p class="section-intro">Capture ideas, sketch diagrams, and organize your study materials.</p>
-</xai:function_call)
-
-<xai:function_call name="edit_file">
-<parameter name="path">c:/Users/DELL/Documents/GitHub/project-va/frontend/notebook.html
+      <h1>Study Notes</h1>
+      <p class="section-intro">Capture ideas, sketch diagrams, and organize your study materials.</p>
     </section>
 
     <div class="grid-2">
       <div class="card">
-        <h3>New Node</h3>
+        <h3>New Note</h3>
         <p class="section-intro">Initialize a new knowledge structure.</p>
         <input id="note-subject" class="input-field" placeholder="Subject" />
         <input id="note-topic" class="input-field" placeholder="Topic" />
         <textarea id="note-content" class="input-field" rows="4" placeholder="Input raw information..."></textarea>
         <input id="note-tags" class="input-field" placeholder="Tags (comma-separated)" />
-        <button class="btn" id="save-note">Save Node</button>
+        <button class="btn" id="save-note">Save Note</button>
       </div>
 
       <div class="card">
         <h3>Visual Mapping</h3>
         <p class="section-intro">Sketch complex relationships and formulas.</p>
         <canvas id="canvas" width="760" height="320" style="border:1px solid rgba(0, 229, 255, 0.2); width:100%; cursor:crosshair; background:rgba(0,0,0,0.3); border-radius:12px;"></canvas>
-        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+        <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
           <button class="btn btn-muted" id="clear-canvas">Clear</button>
           <button class="btn" id="save-drawing">Save Sketch</button>
         </div>
@@ -75,12 +67,12 @@
         <input id="file-input" type="file" class="input-field" />
         <button class="btn" id="upload-file" style="width:100%;">Upload Resource</button>
         <p id="file-msg" style="display:none; font-size:0.8rem; margin-top:0.5rem;"></p>
-        <ul id="file-list" style="max-height:400px; overflow-y:auto; list-style: none; margin-top: 1rem;"></ul>
+        <ul id="file-list" style="max-height:400px; overflow-y:auto; list-style: none; margin-top: 0.75rem;"></ul>
       </div>
     </div>
 
     <div class="card">
-      <h3>Shared Nodes <span id="shared-count" style="font-size:0.8rem; color:var(--text-muted);">(0)</span></h3>
+      <h3>Shared Notes <span id="shared-count" style="font-size:0.8rem; color:var(--text-muted);">(0)</span></h3>
       <p class="section-intro">Information shared by other network participants.</p>
       <ul id="shared-note-list" style="max-height:300px; overflow-y:auto; list-style: none;"></ul>
     </div>
@@ -177,8 +169,8 @@ async function loadNotes(filter=''){
     filtered.forEach(n => {
       const li = document.createElement('li');
       li.className = 'card';
-      li.style.marginBottom = '0.75rem';
-      li.style.padding = '1rem';
+      li.style.marginBottom = '0.5rem';
+      li.style.padding = '0.8rem 0.9rem';
       li.style.borderLeft = '3px solid var(--primary)';
       const tagsHtml = (n.tags||[]).length > 0
         ? `<div style="margin-top:0.5rem;">${n.tags.map(t=>`<span class="badge" style="background: rgba(0,229,255,0.1); color: var(--primary); margin-right: 0.25rem;">${t}</span>`).join('')}</div>`
@@ -187,7 +179,7 @@ async function loadNotes(filter=''){
         <div style="font-weight: 700;">${n.subject}</div>
         <div style="font-size: 0.8rem; color: var(--text-muted);">${n.topic}</div>
         ${tagsHtml}
-        <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+        <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
           <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="editNote('${n.id}')">Edit</button>
           <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="exportPDF('${n.id}')">PDF</button>
           <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="openShareModal('${n.id}')">Share</button>
@@ -226,12 +218,12 @@ async function loadSharedNotes() {
   res.data.forEach(n => {
     const li = document.createElement('li');
     li.className = 'card';
-    li.style.marginBottom = '0.75rem';
-    li.style.padding = '1rem';
+    li.style.marginBottom = '0.5rem';
+    li.style.padding = '0.8rem 0.9rem';
     li.innerHTML = `
       <div style="font-weight: 700;">${n.subject}</div>
       <div style="font-size: 0.8rem; color: var(--text-muted);">${n.topic}</div>
-      <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+      <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
         <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="viewNote('${n.id}')">Access</button>
         <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="exportPDF('${n.id}')">PDF</button>
       </div>
@@ -250,7 +242,7 @@ window.openShareModal = async(noteId) => {
   const shareList = document.getElementById('share-list');
   if (res.success && res.data.length > 0) {
     shareList.innerHTML = res.data.map(u => `
-      <li style="padding:0.75rem; display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <li style="padding:0.55rem 0.75rem; display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.05);">
         <span style="font-size: 0.9rem;">${u.name}</span>
         <button class="btn btn-muted" style="padding: 0.2rem 0.5rem; font-size: 0.6rem;" onclick="unshareNote('${noteId}', '${u.id}')">Revoke</button>
       </li>

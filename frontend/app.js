@@ -13,7 +13,8 @@ async function apiFetch(endpoint, method='GET', body=null){
     const payload = await res.json().catch(()=>null);
 
     if (!res.ok) {
-      if (res.status === 401) {
+      const isAuthAttempt = endpoint === '/auth/login' || endpoint === '/auth/admin-login';
+      if (res.status === 401 && !isAuthAttempt) {
         clearToken();
         window.location.href = 'index.html';
         return { success: false, message: 'Unauthorized. Redirecting to login.' };

@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AI-STUDY ASSISTANT</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-page login-page">
+<div class="page-shell">
+  <div class="page-bg"></div>
+  <div class="page-ui">
+    <header class="auth-navbar">
+      <div class="auth-brand">AI-STUDY ASSISTANT</div>
+      <a href="#about" class="nav-link">Help / About</a>
+    </header>
+
+    <main class="auth-grid">
+      <section class="auth-main fade-in-right">
+        <div class="mode-toggle-wrapper">
+          <div class="mode-switch-segmented">
+            <button id="student-mode-btn" class="seg-btn active" type="button">Student</button>
+            <button id="admin-mode-btn" class="seg-btn" type="button">Admin</button>
+            <span class="seg-slider"></span>
+          </div>
+        </div>
+
+        <section class="auth-card glass-card">
+          <div class="card-header">
+            <div>
+              <h2 id="login-card-title">Student Login</h2>
+            </div>
+          </div>
+
+          <p class="card-copy" id="login-card-copy">Sign in with your student account to access notes, tasks, and AI tools.</p>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <div class="field-with-icon">
+              <span class="field-icon"></span>
+              <input id="email" class="input-field" placeholder="Enter your email" type="email" aria-label="Email" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="field-with-icon">
+              <span class="field-icon"></span>
+              <input id="password" class="input-field" placeholder="Enter your password" type="password" aria-label="Password" required />
+              <button type="button" class="password-toggle" id="password-toggle" aria-label="Show password">Show</button>
+            </div>
+          </div>
+
+          <div class="form-footer">
+            <a href="#" class="link-text">Forgot password?</a>
+          </div>
+
+          <button class="btn btn-primary" id="login-btn" type="button">Login</button>
+
+          <div id="admin-credentials" class="admin-hint" style="display:none;">
+            Admin credentials: <strong>ADMIN</strong> / <strong>123456789</strong>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<!-- Help / About Modal -->
+<div id="about-modal" class="modal-overlay" style="display: none;">
+  <div class="modal-card">
+    <button class="modal-close" id="modal-close">&times;</button>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>About AI-Study Assistant</h2>
+      </div>
+      <div class="modal-body">
+        <h3>Welcome to AI-Study Assistant</h3>
+        <p>AI-Study Assistant is a comprehensive platform designed to help students learn more effectively and manage their academic work efficiently.</p>
+        
+        <h4>Features</h4>
+        <ul>
+          <li><strong>AI Assistant:</strong> Get instant answers and explanations for your study questions</li>
+          <li><strong>Note Management:</strong> Organize and manage your study notes seamlessly</li>
+          <li><strong>Task Planning:</strong> Create and track your academic tasks and deadlines</li>
+          <li><strong>File Analysis:</strong> Upload and analyze documents for key insights</li>
+          <li><strong>Collaboration:</strong> Share notes and resources with classmates</li>
+        </ul>
+        
+        <h4>Getting Started</h4>
+        <p>Sign in with your student account to access all features. If you're an administrator, use the Admin mode to manage the system.</p>
+        
+        <h4>Need Help?</h4>
+        <p>For support or questions, please contact your institution's IT support team.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script src="neural-bg.js"></script>
+<script>
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const passwordToggle = document.getElementById('password-toggle');
+const loginBtn = document.getElementById('login-btn');
+const adminCredentials = document.getElementById('admin-credentials');
+let currentLoginMode = 'student';
+let isSigningIn = false;
+
+const setActiveMode = (mode) => {
+  currentLoginMode = mode;
+  const studentBtn = document.getElementById('student-mode-btn');
+  const adminBtn = document.getElementById('admin-mode-btn');
+  const title = document.getElementById('login-card-title');
+  const copy = document.getElementById('login-card-copy');
+
+  studentBtn.classList.toggle('active', mode === 'student');
+  adminBtn.classList.toggle('active', mode === 'admin');
+
+  if (mode === 'admin') {
+    title.textContent = 'Admin Login';
+    copy.textContent = 'Use the secure admin credentials to manage the AI assistant portal.';
+    adminCredentials.style.display = 'block';
+  } else {
+    title.textContent = 'Student Login';
+    copy.textContent = 'Sign in with your student account to access notes, tasks, and AI tools.';
+    adminCredentials.style.display = 'none';
+  }
+};
+
+const setLoading = (isLoading) => {
+  if (isLoading) {
+    loginBtn.disabled = true;
+    loginBtn.classList.add('loading');
+    loginBtn.textContent = 'Signing in...';
+  } else {
+    loginBtn.disabled = false;
+    loginBtn.classList.remove('loading');
+    loginBtn.textContent = 'Login';
+  }
+};
+
+const showToast = (message, type = 'info') => {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = `toast toast-${type}`;
+  toast.style.opacity = '1';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+  }, 3600);
+};
+
+const requireModeButtons = () => {
+  document.getElementById('student-mode-btn').onclick = () => setActiveMode('student');
+  document.getElementById('admin-mode-btn').onclick = () => setActiveMode('admin');
+};
+
+passwordToggle.onclick = () => {
+  const isVisible = passwordInput.type === 'text';
+  passwordInput.type = isVisible ? 'password' : 'text';
+  passwordToggle.textContent = isVisible ? 'Show' : 'Hide';
+};
+
+const handleLogin = async () => {
+  if (isSigningIn) return;
+
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+
+  if (!email || !password) {
+    showToast('Please enter both email and password.', 'error');
+    return;
+  }
+
+  isSigningIn = true;
+  setLoading(true);
+  try {
+    const result = await apiFetch(currentLoginMode === 'admin' ? '/auth/admin-login' : '/auth/login', 'POST', { email, password });
+    if (!result.success) {
+      showToast(result.message || 'Unable to sign in', 'error');
+      return;
+    }
+    showToast('Signed in successfully', 'success');
+    setToken(result.data.token);
+    localStorage.setItem('user', JSON.stringify(result.data.user));
+    window.location.href = currentLoginMode === 'admin' ? 'admin/admin-dashboard.html' : 'dashboard.html';
+  } catch (err) {
+    showToast('Network error. Please try again.', 'error');
+  } finally {
+    isSigningIn = false;
+    setLoading(false);
+  }
+};
+
+loginBtn.onclick = handleLogin;
+
+[emailInput, passwordInput].forEach((input) => {
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleLogin();
+    }
+  });
+});
+
+requireModeButtons();
+setActiveMode('student');
+
+// Help / About Modal Handler
+const aboutLink = document.querySelector('a[href="#about"]');
+const aboutModal = document.getElementById('about-modal');
+const modalClose = document.getElementById('modal-close');
+
+if (aboutLink) {
+  aboutLink.onclick = (e) => {
+    e.preventDefault();
+    aboutModal.style.display = 'flex';
+  };
+}
+
+if (modalClose) {
+  modalClose.onclick = () => {
+    aboutModal.style.display = 'none';
+  };
+}
+
+// Close modal when clicking outside the modal card
+aboutModal.onclick = (e) => {
+  if (e.target === aboutModal) {
+    aboutModal.style.display = 'none';
+  }
+};
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && aboutModal.style.display === 'flex') {
+    aboutModal.style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>

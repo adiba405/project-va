@@ -5,6 +5,7 @@ from utils.helpers import parse_object_id, resp
 
 
 def list_tasks(app):
+
     user_id = get_jwt_identity()
     page = request.args.get('page', default=1, type=int) or 1
     limit = request.args.get('limit', default=10, type=int) or 10
@@ -50,8 +51,10 @@ def create_task(app):
         'deadline': deadline,
         'priority': priority,
         'status': 'pending',
+        'moderation_status': 'pending',
         'created_at': datetime.utcnow()
     }
+
     task_id = app.mongo.db.tasks.insert_one(task).inserted_id
     return resp(True, 'Task created', {'id': str(task_id)})
 
