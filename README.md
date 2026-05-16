@@ -8,7 +8,9 @@ This project is a full-stack study assistant platform.
 
 ---
 
-## Key fix (Server error 500 on registration)
+## Key fixes (registration + login issues)
+
+### 1) Server error 500 on registration
 Registration (`POST /api/auth/register`) previously failed with **500** due to MongoDB index creation throwing:
 
 > `pymongo.errors.OperationFailure: Index already exists with a different name ... IndexOptionsConflict`
@@ -19,6 +21,19 @@ The fix was to make index creation tolerant of existing/previously-created index
 After the fix, user registration succeeds with **HTTP 200**.
 
 ---
+
+### 2) New users can’t log in after registering
+Login was failing for newly registered users because password hashing/checking was inconsistent:
+- Registration stored hashes using Werkzeug (`generate_password_hash`)
+- Login verification used bcrypt (`bcrypt.checkpw`)
+
+The fix updated:
+- `backend/utils/helpers.py` (`check_password`) to support BOTH Werkzeug and bcrypt hashed passwords.
+
+After the fix, newly registered users can successfully log in.
+
+---
+
 
 ## Features
 
