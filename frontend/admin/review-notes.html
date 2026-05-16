@@ -31,12 +31,19 @@
     </section>
 
     <div class="card admin-section">
-      <h3>Moderation UI (placeholder)</h3>
-      <p class="section-intro">Backend moderation endpoints are not yet connected. This confirms the quick-link navigation works.</p>
+      <h3>Pending Notes</h3>
+      <p class="section-intro">Review and approve/reject notes waiting for moderation.</p>
+
       <div class="admin-action-grid" style="margin-top:1rem;">
+        <button class="btn" type="button" id="refresh-notes-btn">Refresh</button>
         <button class="btn btn-secondary" type="button" onclick="window.location.href='admin-dashboard.html#content'">Back to Content</button>
       </div>
+
+      <div style="margin-top:1rem;" id="pending-notes-container">
+        <p class="section-intro">Loading pending notes...</p>
+      </div>
     </div>
+
   </main>
 </div>
 
@@ -44,6 +51,7 @@
 <script>
   requireAuth();
   initDarkMode();
+
   const logout = document.getElementById('logout-sidebar');
   if (logout) {
     logout.onclick = (e) => {
@@ -53,7 +61,90 @@
       window.location.href = 'admin-login.html';
     };
   }
+
+  function pendingNotesCard(note) {
+    const created = note.created_at ? new Date(note.created_at).toLocaleString() : '—';
+    const subject = note.subject || 'Untitled Note';
+    const topic = note.topic ? ` • ${note.topic}` : '';
+    return `
+      <div class="card" style="margin-bottom:1rem; padding:1rem 1.1rem; border-left:4px solid var(--primary);">
+        <div style="display:flex; justify-content:space-between; gap:1rem; align-items:flex-start;">
+          <div>
+            <div style="font-weight:800; margin-bottom:0.25rem;">${subject}${topic}</div>
+            <div style="font-size:0.82rem; color:var(--text-muted);">Updated: ${created}</div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0.5rem;">
+            <button class="btn" type="button" onclick="approveNote('${note.id}')">Approve</button>
+            <button class="btn btn-secondary" type="button" onclick="rejectNote('${note.id}')">Reject</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadPendingNotes() {
+    const container = document.getElementById('pending-notes-container');
+    const refreshBtn = document.getElementById('refresh-notes-btn');
+    if (!container) return;
+
+    if (refreshBtn) {
+      refreshBtn.disabled = true;
+      refreshBtn.textContent = 'Refreshing...';
+    }
+
+    container.innerHTML = '<p class="section-intro">Loading pending notes...</p>';
+
+    const res = await apiFetch('/auth/moderation/notes', 'GET');
+    console.log('Pending notes response:', res);
+
+
+
+    if (refreshBtn) {
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = 'Refresh';
+    }
+
+    if (!res || !res.success) {
+      container.innerHTML = `<p class="section-intro" style="color: var(--text-muted);">Unable to load pending notes.</p>`;
+      return;
+    }
+
+    const items = res.data?.items || [];
+    if (items.length === 0) {
+      container.innerHTML = '<p class="section-intro">No pending notes.</p>';
+      return;
+    }
+
+    container.innerHTML = items.map(pendingNotesCard).join('');
+  }
+
+  window.approveNote = async function(noteId) {
+    const res = await apiFetch(`/auth/moderation/notes/${noteId}/approve`, 'POST');
+
+    if (!res || !res.success) {
+      alert(res?.message || 'Unable to approve note.');
+      return;
+    }
+    await loadPendingNotes();
+  };
+
+  window.rejectNote = async function(noteId) {
+    const res = await apiFetch(`/auth/moderation/notes/${noteId}/reject`, 'POST');
+
+
+    if (!res || !res.success) {
+      alert(res?.message || 'Unable to reject note.');
+      return;
+    }
+    await loadPendingNotes();
+  };
+
+  const refreshBtn = document.getElementById('refresh-notes-btn');
+  if (refreshBtn) refreshBtn.onclick = loadPendingNotes;
+
+  loadPendingNotes();
 </script>
+
 </body>
 </html>
 

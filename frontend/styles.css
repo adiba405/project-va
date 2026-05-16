@@ -616,6 +616,46 @@ h3 { font-size: 1.25rem; }
   box-shadow: var(--card-shadow);
 }
 
+.result-panel-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.result-action-btn {
+  padding: 0.45rem 0.85rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--text-main);
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.result-action-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.result-content {
+  white-space: pre-wrap;
+  color: var(--text-main);
+}
+
+.result-content pre {
+  margin: 0.85rem 0;
+  padding: 0.85rem 1rem;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.result-content code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+
 /* Responsive */
 @media (max-width: 1024px) {
   .sidebar { width: 80px; padding: 1.5rem 0.5rem; }
@@ -1741,7 +1781,9 @@ h3 { font-size: 1.25rem; }
   border-radius: var(--radius);
   font-size: 0.9rem;
   margin-bottom: 0;
+  color: #FFFFFF; /* typed text color */
 }
+
 
 #chat-input:focus {
   outline: none;

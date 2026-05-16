@@ -74,12 +74,19 @@
     </div>
 
     <div class="card">
-      <h3>Knowledge Nodes</h3>
-      <p class="section-intro">Recently modified information structures.</p>
-      <div id="recent-notes-container">
+      <h3>My Knowledge</h3>
+      <p class="section-intro">Access your stored information nodes.</p>
+
+      <div style="margin-top: 0.75rem; display:flex; gap:0.5rem;">
+        <button class="btn" onclick="window.location='notebook.html'">Open Notes</button>
+        <button class="btn btn-secondary" onclick="window.location='notebook.html?focus=1'">Search & Browse</button>
+      </div>
+
+      <div id="recent-notes-container" style="margin-top: 1rem;">
         <p>Fetching notes from network...</p>
       </div>
     </div>
+
   </main>
 </div>
 

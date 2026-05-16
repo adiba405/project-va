@@ -28,8 +28,10 @@
       <p class="auth-kicker">Admin Control Center</p>
       <h1 id="admin-hero-title">Platform overview</h1>
       <p class="section-intro" id="admin-hero-copy">Manage users, monitor content, and review system health for your AI Study Assistant.</p>
+
       <button type="button" class="btn btn-secondary" id="refresh-stats-btn" style="margin-top: 1rem;">Refresh Data</button>
     </section>
+
 
     <div id="dashboard-section" class="admin-panel-section active">
       <div class="grid-3 admin-metric-grid">
@@ -155,17 +157,18 @@
         <div class="admin-action-grid">
           <div class="setting-card">
             <h4>Engagement</h4>
-            <p>AI session activity is steady with a 14% rise in daily interactions.</p>
+            <p id="admin-engagement-copy">Loading...</p>
           </div>
           <div class="setting-card">
             <h4>Content health</h4>
-            <p>80% of notes are published and reviewed within 24 hours.</p>
+            <p id="admin-content-health-copy">Loading...</p>
           </div>
           <div class="setting-card">
             <h4>System alerts</h4>
-            <p>No critical issues detected. Everything is operating smoothly.</p>
+            <p id="admin-system-alerts-copy">Loading...</p>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -198,23 +201,27 @@ async function loadAdminStats() {
   try {
     const res = await apiFetch('/auth/admin-stats');
     console.log('Admin stats response:', res);
-    
+
     if (!res.success) {
       console.error('Admin stats load failed:', res.message);
       return;
     }
 
-    document.getElementById('admin-total-users').textContent = res.data.total_users || 0;
-    document.getElementById('admin-active-users').textContent = res.data.active_users || 0;
-    document.getElementById('admin-total-notes').textContent = res.data.total_notes || 0;
-    document.getElementById('admin-total-tasks').textContent = res.data.total_tasks || 0;
-    document.getElementById('admin-shared-notes').textContent = res.data.shared_notes || 0;
-    document.getElementById('admin-blocked-users').textContent = res.data.blocked_users || 0;
+    // In admin panel, always show values based on the currently logged-in admin.
+    // The backend /auth/admin-stats endpoint should already be scoped to the user.
+    document.getElementById('admin-total-users').textContent = res.data.total_users ?? 0;
+    document.getElementById('admin-active-users').textContent = res.data.active_users ?? 0;
+    document.getElementById('admin-total-notes').textContent = res.data.total_notes ?? 0;
+    document.getElementById('admin-total-tasks').textContent = res.data.total_tasks ?? 0;
+    document.getElementById('admin-shared-notes').textContent = res.data.shared_notes ?? 0;
+    document.getElementById('admin-blocked-users').textContent = res.data.blocked_users ?? 0;
+
     console.log('Admin stats updated successfully');
   } catch (error) {
     console.error('Error loading admin stats:', error);
   }
 }
+
 
 async function loadAdminUsers() {
   console.log('Loading admin users...');

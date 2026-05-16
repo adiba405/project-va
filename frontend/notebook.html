@@ -335,7 +335,24 @@ loadNotes();
 loadSharedNotes();
 document.getElementById('filter-input').oninput = (e)=> { notePage = 1; loadNotes(e.target.value); };
 
+function prefillNewNoteFromQueryParams() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const subject = params.get('subject');
+    const topic = params.get('topic');
+    const content = params.get('content');
+    if (subject) document.getElementById('note-subject').value = subject;
+    if (topic) document.getElementById('note-topic').value = topic;
+    if (content) document.getElementById('note-content').value = content;
+  } catch (e) {
+    // no-op
+  }
+}
+
+prefillNewNoteFromQueryParams();
+
 document.getElementById('save-note').onclick = async ()=>{
+
   const sub = document.getElementById('note-subject').value.trim();
   const top = document.getElementById('note-topic').value.trim();
   const content = document.getElementById('note-content').value;
@@ -356,13 +373,24 @@ document.getElementById('save-drawing').onclick = async()=>{
   const sub = document.getElementById('note-subject').value.trim();
   const top = document.getElementById('note-topic').value.trim();
   if(!sub || !top) return;
+
   const drawing = document.getElementById('canvas').toDataURL();
+
+  // Prevent accidental empty saves
+  if(!drawing || drawing.length < 1000) {
+    document.getElementById('drawing-msg').textContent = 'Sketch canvas is empty. Draw something before saving.';
+    return;
+  }
+
   const res = await apiFetch('/notes','POST',{subject:sub,topic:top,content:'[Visual Map]',drawing});
   if(res.success){
     ctx.clearRect(0,0,760,320);
+    document.getElementById('drawing-msg').textContent = '';
     loadNotes();
   }
 };
+
+
 
 window.editNote = async(id)=>{
   const r = await apiFetch(`/notes/${id}`);

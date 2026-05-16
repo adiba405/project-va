@@ -46,7 +46,7 @@
         <select id="note-select" class="input-field">
           <option value="">-- No note selected --</option>
         </select>
-        <button class="btn" id="refresh-notes" style="width: 100%;">Refresh Nodes</button>
+        <button class="btn" id="refresh-notes" style="width: 100%;">Refresh Notes</button>
         <p id="note-status" style="font-size:0.8rem; margin-top:0.5rem; color:var(--text-muted);"></p>
       </div>
     </div>
@@ -56,7 +56,14 @@
       <p class="section-intro">Ask questions about your study material. Context will be automatically synthesized.</p>
       <textarea id="question" class="input-field" rows="3" placeholder="Analyze knowledge nodes..."></textarea>
       <button class="btn" id="ask-btn">Execute Query</button>
-      <div id="answer" class="result-panel" style="display: none;"></div>
+      <div id="answer" class="result-panel" style="display: none;">
+        <div class="result-panel-actions" aria-hidden="true">
+          <button class="result-action-btn" onclick="copyResult('answer')">Copy</button>
+          <button class="result-action-btn" onclick="editResult('answer')">Edit</button>
+        </div>
+        <div id="answer-content" class="result-content"></div>
+      </div>
+
     </div>
 
     <div class="grid-2">
@@ -69,7 +76,14 @@
           <button class="btn btn-secondary" id="summarize-file-btn">Summarize File</button>
           <button class="btn btn-secondary" id="summarize-note-btn">Summarize Node</button>
         </div>
-        <div id="summary" class="result-panel" style="display: none;"></div>
+        <div id="summary" class="result-panel" style="display: none;">
+          <div class="result-panel-actions" aria-hidden="true">
+            <button class="result-action-btn" onclick="copyResult('summary')">Copy</button>
+            <button class="result-action-btn" onclick="editResult('summary')">Edit</button>
+          </div>
+          <div id="summary-content" class="result-content"></div>
+        </div>
+
       </div>
 
       <div class="card">
@@ -122,25 +136,152 @@ async function display(eid, endpoint, payload, btn){
     btn.dataset.originalText = btn.textContent;
     btn.textContent = 'Processing...';
   }
+
   out.style.display = 'none';
-  out.textContent = '';
-  
+
+  // Prefer dedicated content container if present.
+  const contentEl = document.getElementById(eid + '-content');
+  if (contentEl) contentEl.innerHTML = '';
+  else out.textContent = '';
+
   const res = await apiFetch(endpoint, 'POST', payload);
   if (btn) {
     btn.disabled = false;
     btn.textContent = btn.dataset.originalText;
   }
-  
+
   if(!res.success){ 
-    out.innerHTML = `<span style="color:var(--badge-danger)">${res.message}</span>`; 
+    const msgHtml = `<span style="color:var(--badge-danger)">${res.message}</span>`;
+    if (contentEl) contentEl.innerHTML = msgHtml;
+    else out.innerHTML = msgHtml;
     out.style.display = 'block';
     return; 
   }
-  
+
   const data = res.data.answer || res.data.summary || res.data.quiz;
-  out.textContent = data;
+
+  // Render possible code blocks/inline code while keeping spacing and line order.
+  if (contentEl) {
+    contentEl.style.whiteSpace = 'pre-wrap';
+    contentEl.innerHTML = renderAiTextToHtml(data);
+  } else {
+    out.style.whiteSpace = 'pre-wrap';
+    out.innerHTML = renderAiTextToHtml(data);
+  }
+
   out.style.display = 'block';
 }
+
+async function copyResult(eid) {
+  const out = document.getElementById(eid);
+  if (!out) return;
+
+  const contentEl = document.getElementById(eid + '-content');
+  const rawText = contentEl ? contentEl.innerText : out.innerText;
+  const text = (rawText || '').trim();
+  if (!text) return;
+
+  await navigator.clipboard.writeText(text);
+}
+
+function editResult(eid) {
+  const out = document.getElementById(eid);
+  if (!out) return;
+
+  const contentEl = document.getElementById(eid + '-content');
+  const currentText = contentEl ? contentEl.innerText : out.innerText;
+  const text = (currentText || '').trim();
+
+  if (contentEl) {
+    contentEl.innerHTML = '';
+    const ta = document.createElement('textarea');
+    ta.style.width = '100%';
+    ta.style.minHeight = '180px';
+    ta.value = text;
+    ta.className = 'input-field';
+    contentEl.appendChild(ta);
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'btn';
+    saveBtn.style.marginTop = '0.75rem';
+    saveBtn.textContent = 'Save';
+    saveBtn.onclick = () => {
+      const editedText = ta.value.trim();
+
+      // Transfer edited output into Notes as a new note draft.
+      // NOTE: we pass content via query params; notebook.html will prefill.
+      const subjectGuess = (editedText.split('\n').find(l => l.trim()) || 'AI Note').slice(0, 60);
+      const topicGuess = 'AI Assistant';
+
+      const toParam = (s) => encodeURIComponent(String(s || ''));
+      const qs = `subject=${toParam(subjectGuess)}&topic=${toParam(topicGuess)}&content=${toParam(editedText)}`;
+
+      window.location.href = `notebook.html?${qs}`;
+    };
+
+
+    contentEl.appendChild(saveBtn);
+  }
+}
+
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Supports:
+// - fenced code blocks: ```lang\ncode``` -> <pre><code>...</code></pre>
+// - inline code: `code` -> <code>code</code>
+// - preserves whitespace/line order
+function renderAiTextToHtml(text) {
+  if (text === null || text === undefined) return '';
+  const raw = String(text);
+
+  // Split by fenced code blocks while keeping them in the result.
+  const parts = raw.split(/```[a-zA-Z0-9_-]*\n[\s\S]*?```/g);
+  const fenceRe = /```[a-zA-Z0-9_-]*\n([\s\S]*?)```/g;
+
+  // If there are no fences, just handle inline code + basic escaping.
+  if (!fenceRe.test(raw)) {
+    fenceRe.lastIndex = 0;
+    return escapeHtml(raw).replace(/`([^`]+)`/g, '<code>$1</code>');
+  }
+
+  fenceRe.lastIndex = 0;
+  const segments = [];
+  let lastIndex = 0;
+  let m;
+  while ((m = fenceRe.exec(raw)) !== null) {
+    const fullMatch = m[0];
+    const code = m[1];
+
+    // text before fence
+    const before = raw.slice(lastIndex, m.index);
+    if (before) {
+      segments.push(
+        escapeHtml(before).replace(/`([^`]+)`/g, '<code>$1</code>')
+      );
+    }
+
+    // fenced code block
+    segments.push(
+      `<pre><code>${escapeHtml(code)}</code></pre>`
+    );
+
+    lastIndex = m.index + fullMatch.length;
+  }
+
+  // tail text after last fence
+  const tail = raw.slice(lastIndex);
+  if (tail) {
+    segments.push(escapeHtml(tail).replace(/`([^`]+)`/g, '<code>$1</code>'));
+  }
+
+  return segments.join('');
+}
+
 
 async function loadFileOptions() {
   const select = document.getElementById('file-select');
