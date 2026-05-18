@@ -7,7 +7,13 @@ import pytesseract
 import docx
 from pypdf import PdfReader
 
+import openpyxl
+import xlrd
+
+import csv
+
 from utils.helpers import parse_object_id
+
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
 MAX_TEXT_LENGTH = 10000
@@ -58,13 +64,94 @@ def _read_image(filepath):
     return text or ''
 
 
+def _read_xlsx(filepath):
+    wb = openpyxl.load_workbook(filepath, data_only=True, read_only=True)
+    parts = []
+    for ws in wb.worksheets:
+        try:
+            parts.append(f"Sheet: {ws.title}")
+        except Exception:
+            parts.append("Sheet")
+
+        row_count = 0
+        for row in ws.iter_rows(values_only=True):
+            row_count += 1
+            if row_count > 2000:
+                parts.append("[Truncated rows]")
+                break
+
+            cells = [str(c).strip() for c in row if c is not None and str(c).strip()]
+            if not cells:
+                continue
+
+            parts.append(", ".join(cells))
+
+    return "\n".join(parts)
+
+
+def _read_xls(filepath):
+    wb = xlrd.open_workbook(filepath)
+    parts = []
+    for sheet_name in wb.sheet_names():
+        ws = wb.sheet_by_name(sheet_name)
+        parts.append(f"Sheet: {sheet_name}")
+
+        max_rows = min(ws.nrows, 2000)
+        max_cols = ws.ncols
+        for r in range(max_rows):
+            row_cells = []
+            for c in range(max_cols):
+                val = ws.cell_value(r, c)
+                if val is None:
+                    continue
+                s = str(val).strip()
+                if s:
+                    row_cells.append(s)
+            if row_cells:
+                parts.append(", ".join(row_cells))
+
+    return "\n".join(parts)
+
+
 def _normalize_text(text):
+
     if text is None:
         return ''
     normalized = ' '.join(text.split())
     if len(normalized) > MAX_TEXT_LENGTH:
         return normalized[:MAX_TEXT_LENGTH] + '\n\n[Truncated additional content]'
     return normalized
+
+
+def _read_csv(filepath):
+    # Basic CSV reader (comma/semicolon/tab separated depending on file)
+    # Keeps it lightweight; best-effort extraction.
+    with open(filepath, 'r', encoding='utf-8', errors='ignore', newline='') as f:
+        sample = f.read(8192)
+        f.seek(0)
+
+        # crude delimiter detection
+        delimiters = [',', ';', '\t', '|']
+        delimiter = ','
+        best = -1
+        for d in delimiters:
+            score = sample.count(d)
+            if score > best:
+                best = score
+                delimiter = d
+
+        reader = csv.reader(f, delimiter=delimiter)
+        lines = []
+        row_count = 0
+        for row in reader:
+            row_count += 1
+            if row_count > 2000:
+                lines.append('[Truncated rows]')
+                break
+            cells = [str(c).strip() for c in row if c is not None and str(c).strip()]
+            if cells:
+                lines.append(', '.join(cells))
+        return '\n'.join(lines)
 
 
 def extract_text_from_file(app, file_id):
@@ -82,6 +169,7 @@ def extract_text_from_file(app, file_id):
         return {'success': False, 'message': 'File not found on disk', 'status': 404}
 
     file_type = (file_doc.get('file_type') or '').lower()
+
     try:
         if file_type == 'txt':
             text = _read_txt(filepath)
@@ -93,12 +181,22 @@ def extract_text_from_file(app, file_id):
             text = _read_docx(filepath)
         elif file_type in ('jpg', 'jpeg', 'png'):
             text = _read_image(filepath)
+        elif file_type == 'xlsx':
+            text = _read_xlsx(filepath)
+        elif file_type == 'xls':
+            text = _read_xls(filepath)
         else:
-            return {'success': False, 'message': 'Unsupported file type for extraction', 'status': 400}
+            # Last-resort: try treating as plain text
+            # (helps if users upload text-like formats without a supported extension)
+            try:
+                text = _read_txt(filepath)
+            except Exception:
+                return {'success': False, 'message': 'Unsupported file type for extraction', 'status': 400}
     except Exception as e:
         return {'success': False, 'message': f'Error extracting file text: {str(e)}', 'status': 500}
 
     normalized = _normalize_text(text)
+
     if not normalized.strip():
         if file_type == 'pdf':
             return {

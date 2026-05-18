@@ -10,7 +10,13 @@ from utils.helpers import parse_object_id, resp
 
 # Configure file upload
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), '..', 'uploads')
-ALLOWED_EXTENSIONS = {'pdf', 'txt', 'jpg', 'jpeg', 'png', 'docx', 'doc'}
+ALLOWED_EXTENSIONS = {
+    'pdf', 'txt', 'csv', 'md',
+    'doc', 'docx',
+    'ppt', 'pptx',
+    'xls', 'xlsx', 'ods',
+    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp'
+}
 MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB
 
 # Create uploads folder if it doesn't exist

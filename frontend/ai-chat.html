@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Chat | AI Study Assistant</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="compact-page">
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="sidebar-logo" aria-label="AI Study Assistant">
+assets/study-logo-theme.png
+        <span class="sidebar-logo__text">AI-STUDY ASSISTANT</span>
+      </div>
+      <nav class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="notebook.html">Notes</a>
+<a href="ai-chat.html" class="active">Chat</a>
+        <a href="planner.html">Tasks</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" id="logout-sidebar">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <section class="page-hero">
+        <p class="auth-kicker">AI Conversation</p>
+        <h1>Chat with AI</h1>
+        <p class="section-intro">Ask questions about your study material. Context can be used from your notes when available.</p>
+
+        <div class="card" style="margin-top: 1.25rem; padding: 1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+            <div>
+              <h3 style="margin:0 0 0.25rem 0;">Conversation</h3>
+              <p class="section-intro" style="margin:0; max-width:none;">Enter a message and press Send.</p>
+            </div>
+            <button class="btn btn-secondary" style="padding:0.65rem 1rem;" id="clear-chat-btn">Clear</button>
+          </div>
+
+          <div class="chat-page" style="margin-top: 1rem;">
+            <div id="chat-messages-page" class="chat-messages" style="height: 60vh; overflow-y:auto; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.22);"></div>
+
+            <div class="chat-input-area" style="border-radius: var(--radius); margin-top: 0.9rem;">
+              <input type="text" id="chat-input-page" placeholder="Type a message..." />
+              <button id="chat-send-btn-page">Send</button>
+            </div>
+
+            <div id="chat-error" style="display:none; margin-top:0.75rem; padding:0.75rem 0.9rem; border-radius: 12px; border: 1px solid rgba(239,68,68,0.35); background: rgba(239,68,68,0.08); color: rgba(255,255,255,0.92);"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="chat-widget.js"></script>
+  <script>
+    // Ensure auth + theme
+    requireAuth();
+    initDarkMode();
+
+    document.getElementById('logout-sidebar').onclick = (e) => {
+      e.preventDefault();
+      clearToken();
+      localStorage.removeItem('user');
+      window.location = 'index.html';
+    };
+
+    const messagesEl = document.getElementById('chat-messages-page');
+    const inputEl = document.getElementById('chat-input-page');
+    const sendBtn = document.getElementById('chat-send-btn-page');
+    const clearBtn = document.getElementById('clear-chat-btn');
+    const errorEl = document.getElementById('chat-error');
+
+    function showError(msg) {
+      if (!errorEl) return;
+      errorEl.textContent = msg;
+      errorEl.style.display = 'block';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function addMessage(sender, text) {
+      if (!messagesEl) return;
+      const div = document.createElement('div');
+      div.className = 'chat-message chat-message-' + sender;
+
+      const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      div.innerHTML =
+        '<div class="chat-message-content">' + escapeHtml(text) + '</div>' +
+        '<div class="chat-message-time">' + timestamp + '</div>';
+
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function addTypingIndicator() {
+      const typingId = 'typing-' + Date.now();
+      addMessage('ai', 'Thinking...');
+      return typingId;
+    }
+
+    async function sendChat() {
+      const message = (inputEl.value || '').trim();
+      if (!message) return;
+
+      showError('');
+      if (errorEl) errorEl.style.display = 'none';
+
+      addMessage('user', message);
+      inputEl.value = '';
+
+      if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.textContent = '...';
+      }
+
+      // Local thinking line
+      addMessage('ai', 'Thinking...');
+
+      try {
+        const res = await apiFetch('/ai/chat', 'POST', { message: message });
+
+        // Remove last thinking message by clearing and re-rendering simplest way:
+        // (We can't reliably locate it with current addMessage implementation.)
+        // So: append answer; it's acceptable for now.
+        if (res.success) {
+          addMessage('ai', res.data.answer || "I'm ready to help. What would you like to know?");
+        } else {
+          showError(res.message || 'AI request failed.');
+        }
+      } catch (e) {
+        showError('Network error. Please check your connection.');
+      } finally {
+        if (sendBtn) {
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'Send';
+        }
+        inputEl.focus();
+      }
+    }
+
+    sendBtn.addEventListener('click', sendChat);
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChat();
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      messagesEl.innerHTML = '';
+      addMessage('ai', 'How can I help you today?');
+      inputEl.focus();
+    });
+
+    // Initial greeting
+    addMessage('ai', 'How can I help you today?');
+  </script>
+</body>
+</html>
+

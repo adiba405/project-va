@@ -10,23 +10,8 @@ function initChatWidget() {
 }
 
 function openChatWidget() {
-  const widget = document.getElementById('chat-widget');
-  if (widget) {
-    widget.classList.remove('minimized');
-    widget.classList.add('active');
-    chatWidgetMinimized = false;
-    
-    // Send initial message on first open
-    if (!initialMessageSent) {
-      initialMessageSent = true;
-      sendInitialMessage();
-    }
-    
-    const input = document.getElementById('chat-input');
-    if (input) {
-      input.focus();
-    }
-  }
+  // Ask AI now routes to a dedicated chat page.
+window.location.href = 'ai-chat.html';
 }
 
 function closeChatWidget() {

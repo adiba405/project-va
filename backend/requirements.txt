@@ -9,3 +9,6 @@ pypdf
 python-docx
 pillow
 pytesseract
+openpyxl
+xlrd
+

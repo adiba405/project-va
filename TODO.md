@@ -1,7 +1,6 @@
-# TODO
+ # TODO
 
-- [x] Update AI assistant system prompt in `backend/controllers/ai_controller.py` so it refuses to hallucinate app-data counts.
-- [x] Make `/api/ai/chat` inject real task/note counts into the prompt so the AI can answer “how many tasks/notes” accurately.
-
-
-
+- [x] Add new futuristic geometric neon SVG logo (cyan→purple gradient) with glow + glass feel
+- [x] Add CSS styles for neon/glass logo blending with dark sci-fi theme
+- [ ] Replace all HTML references to `assets/study-logo-theme.png` with `assets/ai-geom-neon-logo.svg` (and `../assets/...` in admin pages)
+- [ ] Smoke test key pages (index, dashboard, planner, notebook, profile, admin dashboard)
